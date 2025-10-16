@@ -1,0 +1,53 @@
+name: 🚀 Release
+
+on:
+  push:
+    branches:
+      - main
+    # 可选：只有版本号变更时才触发
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  release:
+    name: Build, Test & Publish
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ 检出代码
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ 设置 Node 版本和 npm 缓存
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org/'
+
+      # 3️⃣ 安装依赖（含缓存）
+      - name: Install dependencies
+        run: npm ci
+
+      # 4️⃣ Lint
+      - name: Lint
+        run: npm run lint
+
+      # 5️⃣ Test
+      - name: Run tests
+        run: npm test
+
+      # 6️⃣ Build
+      - name: Build package
+        run: npm run build
+
+      # 7️⃣ Publish to npm (only on main & with tag)
+      - name: Publish to npm
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
