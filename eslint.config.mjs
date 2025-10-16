@@ -6,7 +6,7 @@ import prettier from 'eslint-config-prettier';
 
 export default [
   // 1) 全局忽略（Flat Config 不看 .eslintignore）
-  { ignores: ['dist/**', 'node_modules/**'] },
+  { ignores: ['dist/**', 'node_modules/**', 'coverage/**'] },
 
   // 2) 仅给 JS 文件（如果仓库里有 JS）应用 JS 推荐规则
   {
