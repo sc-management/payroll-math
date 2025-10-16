@@ -37,4 +37,29 @@ describe('sumPayrollTotals', () => {
     expect(res.totalTips).toBe(5);
     expect(res.totalCashTips).toBe(2);
   });
+
+  it('handles negative ccTips and sc values', () => {
+    const res = sumPayrollTotals([
+      {
+        ccTips: -10.5,
+        sc: 5.2,
+        cashTips: 0.1,
+      },
+    ]);
+    // (-10.5 + 5.2) = -5.3 → rounds to -5
+    expect(res.totalTips).toBe(-5);
+    // cashTips rounds to 0
+    expect(res.totalCashTips).toBe(0);
+  });
+
+  it('sums multiple periods and rounds appropriately', () => {
+    const res = sumPayrollTotals([
+      { ccTips: 20.25, sc: 30.25, cashTips: 5.5 },
+      { ccTips: 10.5, sc: 10.25, cashTips: 2.4 },
+    ]);
+    // totalTips = 20.25+30.25 + 10.5+10.25 = 71.25 → rounds to 71
+    // totalCashTips = 5.5 + 2.4 = 7.9 → rounds to 8
+    expect(res.totalTips).toBe(71);
+    expect(res.totalCashTips).toBe(8);
+  });
 });
