@@ -38,7 +38,6 @@ export interface PayrollSnapshot {
     id: string;
     name: string;
     minPayRate: number;
-    timePeriods?: string;
   };
 
   logs: Array<{

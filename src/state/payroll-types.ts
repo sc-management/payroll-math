@@ -3,6 +3,7 @@ import { MoneyCents, Ratio } from './number';
 export type Position = 1 | 2 | -1; // 1 FOH, 2 BOH, -1 Spread等虚拟
 export type PayType = 1 | 2; // 1 hourly, 2 salary
 export type LogType = 1 | 2 | 3 | 4 | 5; // 1是payroll,2是period,3是employee, 4，5预定为新的period/employee变更日志
+export type MetaField = 'totalCashTips' | 'totalTips';
 export type PeriodField = 'sales' | 'cashTips' | 'ccTips' | 'serviceCharge' | 'busserPercent';
 export type EmployeeField = 'hour' | 'percent' | 'cc' | 'cash' | 'total';
 
@@ -77,33 +78,27 @@ export type PayrollState = {
 
 export type PayrollChange =
   | ({ kind: 'period' } & PeriodUpdate)
-  | ({ kind: 'employee' } & EmployeeUpdate)
-  | ({ kind: 'busser' } & BusserUpdate);
+  | ({ kind: 'employee' } & EmployeeUpdate);
 
 export type PeriodUpdate = {
-  periodId: number;
-  field: 'sales' | 'cashTips' | 'ccTips' | 'serviceCharge';
-  value: number;
+  periodId: string;
+  field: PeriodField;
+  value: MoneyCents | Ratio;
 };
 
 export type EmployeeUpdate = {
-  periodId: number;
-  uid: number;
+  periodId: string;
+  uid: string;
   roleName: string;
-  field: 'hour' | 'percent' | 'cc' | 'cash';
-  value: number; // percent as 0..1
-};
-
-export type BusserUpdate = {
-  periodId: number;
-  value: number; // 0..1
+  field: EmployeeField;
+  value: MoneyCents | Ratio | number; // percent as 0..1
 };
 
 export type PeriodChangeDiff = {
   periodId: string;
   field: PeriodField;
-  before?: number; // cents or ratio(0..1)
-  after?: number;
+  before?: MoneyCents | Ratio; // cents or ratio(0..1)
+  after?: MoneyCents | Ratio;
 };
 
 export type EmployeeChangeDiff = {
@@ -111,14 +106,14 @@ export type EmployeeChangeDiff = {
   uid: string;
   roleName: string;
   field: EmployeeField;
-  before?: number; // cents or hour/ratio
-  after?: number;
+  before?: MoneyCents | Ratio | number; // cents or hour/ratio
+  after?: MoneyCents | Ratio | number;
 };
 
 export type MetaChangeDiff = {
-  field: 'totalCashTips' | 'totalTips';
-  before?: number;
-  after?: number;
+  field: MetaField;
+  before?: MoneyCents;
+  after?: MoneyCents;
 };
 
 export type PayrollDiff = {

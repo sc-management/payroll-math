@@ -3,7 +3,6 @@ import { PeriodId, StateLogEntry } from '../state/payroll-types';
 export interface PayrollModel {
   blocks: PeriodBlock[];
   sections: { roleName: string; employees: EmployeeRow[] }[];
-  busserByPeriod: Record<string, number>;
   meta: PayrollMeta;
   logs: PayrollLogGrouped;
 }
@@ -17,6 +16,7 @@ export interface PeriodBlock {
   ccTips: number;
   serviceCharge: number;
   tipsTotal: number;
+  busserPercent?: number;
 }
 
 export interface EmployeeRow {

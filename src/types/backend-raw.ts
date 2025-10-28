@@ -22,25 +22,24 @@ export interface RawPayrollWithFull {
     payroll_id: number;
     period_id: number;
     role_id: number;
-    role_name: string;
-    pay_rate: number;
-    pay_type: number;
-    hour: number;
-    tips_cc: number;
-    tips_cash: number;
-    tips_total: number;
-    percent: number;
+    role_name?: string;
+    pay_rate?: number;
+    pay_type?: number;
+    hour?: number;
+    tips_cc?: number;
+    tips_cash?: number;
+    tips_total?: number;
+    percent?: number;
   }>;
   location: {
     id: number;
     name: string;
     min_pay_rate: number;
-    time_periods?: string;
   };
   logs: Array<{
     type: number;
     update_data: string;
-    timestamp: string;
+    timestamp: Date;
     member: {
       first_name: string;
       last_name: string;

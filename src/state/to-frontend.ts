@@ -20,19 +20,30 @@ const periodToDayMeal: Record<PeriodId, { day: Day; meal: Meal }> = {
 };
 
 export function fromStateToModel(s: PayrollState): PayrollModel {
-  const blocks: PayrollModel['blocks'] = Object.values(s.periods)
-    .sort((a, b) => a.id.localeCompare(b.id))
-    .map((p) => ({
-      periodId: p.id,
-      day: periodToDayMeal[p.id as PeriodId].day,
-      meal: periodToDayMeal[p.id as PeriodId].meal,
-      tipsPercent: 0, // 若有就映射
-      sales: p.sales,
-      cashTips: p.cashTips,
-      ccTips: p.ccTips,
-      serviceCharge: p.serviceCharge,
-      tipsTotal: p.cashTips + p.ccTips,
-    }));
+  // Period blocks (1..14)
+  const blocks: PayrollModel['blocks'] = [];
+  for (let pid = '1' as PeriodId; pid <= '14'; pid = (pid + 1) as PeriodId) {
+    const dm = periodToDayMeal[pid];
+    const rec = s.periods?.[pid] || {
+      id: pid,
+      sales: 0,
+      cashTips: 0,
+      ccTips: 0,
+      serviceCharge: 0,
+    };
+    const periodBlock = {
+      periodId: pid,
+      day: dm.day,
+      meal: dm.meal,
+      sales: rec.sales,
+      cashTips: rec.cashTips,
+      ccTips: rec.ccTips,
+      serviceCharge: rec.serviceCharge,
+      tipsTotal: rec.ccTips + rec.serviceCharge,
+      busserPercent: rec.busserPercent,
+    };
+    blocks.push(periodBlock);
+  }
 
   const roleMap = new Map<string, PayrollModel['sections'][number]>();
   for (const emp of s.employees) {
@@ -112,9 +123,6 @@ export function fromStateToModel(s: PayrollState): PayrollModel {
   return {
     blocks,
     sections: [...roleMap.values()],
-    busserByPeriod: Object.fromEntries(
-      Object.values(s.periods).map((p) => [p.id, p.busserPercent]),
-    ),
     meta: {
       id: s.meta.payrollId,
       locationId: s.meta.locationId,
