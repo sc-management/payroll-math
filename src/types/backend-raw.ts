@@ -22,14 +22,14 @@ export interface RawPayrollWithFull {
     payroll_id: number;
     period_id: number;
     role_id: number;
-    role_name?: string;
-    pay_rate?: number;
-    pay_type?: number;
-    hour?: number;
-    tips_cc?: number;
-    tips_cash?: number;
-    tips_total?: number;
-    percent?: number;
+    role_name?: string | null;
+    pay_rate?: number | null;
+    pay_type?: number | null;
+    hour?: number | null;
+    tips_cc?: number | null;
+    tips_cash?: number | null;
+    tips_total?: number | null;
+    percent?: number | null;
   }>;
   location: {
     id: number;
