@@ -131,10 +131,10 @@ export function fromCanonicalToState(snap: PayrollSnapshot, rates: PayRateRecord
   }
 
   const buckets: {
-    1: Map<string, StateEmployee>;
-    2: Map<string, StateEmployee>;
-    3: Map<string, StateEmployee>;
-    4: Map<string, StateEmployee>;
+    '1': Map<string, StateEmployee>;
+    '2': Map<string, StateEmployee>;
+    '3': Map<string, StateEmployee>;
+    '4': Map<string, StateEmployee>;
   } = { 1: new Map(), 2: new Map(), 3: new Map(), 4: new Map() };
 
   /** 根据 payRates 预埋四类岗位的所有员工 */
@@ -197,12 +197,12 @@ export function fromCanonicalToState(snap: PayrollSnapshot, rates: PayRateRecord
     };
   }
 
-  const employees: PayrollState['employees'] = {
-    ...toSorted(buckets[1]),
-    ...toSorted(buckets[2]),
-    ...toSorted(buckets[3]),
-    ...toSorted(buckets[4]),
-  };
+  const employees: PayrollState['employees'] = [
+    ...toSorted(buckets['1']),
+    ...toSorted(buckets['2']),
+    ...toSorted(buckets['3']),
+    ...toSorted(buckets['4']),
+  ];
 
   const meta: PayrollState['meta'] = {
     payrollId: snap.id,
