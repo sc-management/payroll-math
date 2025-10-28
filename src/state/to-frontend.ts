@@ -32,6 +32,7 @@ export function fromStateToModel(s: PayrollState): PayrollModel {
       cashTips: 0,
       ccTips: 0,
       serviceCharge: 0,
+      busserPercent: 0,
     };
     const periodBlock = {
       periodId: pid,
