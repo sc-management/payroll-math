@@ -23,8 +23,8 @@
     "test": "vitest run",
     "dev": "vitest watch",
     "prepublishOnly": "npm run build && npm test",
-    "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
     "release": "release-it"
   },
   "keywords": [],
