@@ -21,35 +21,34 @@ const periodToDayMeal: Record<PeriodId, { day: Day; meal: Meal }> = {
 };
 
 export function fromStateToModel(s: PayrollState): PayrollModel {
-  // Period blocks (1..14)
-  const blocks: PayrollModel['blocks'] = [];
-  for (let i = 1; i <= 14; i++) {
-    const pid = String(i) as PeriodId;
-    const dm = periodToDayMeal[pid];
-    const rec = s.periods?.[pid] || {
-      id: pid,
-      sales: 0,
-      cashTips: 0,
-      ccTips: 0,
-      serviceCharge: 0,
-      busserPercent: 0,
-    };
-    const periodBlock = {
-      periodId: pid,
-      day: dm.day,
-      meal: dm.meal,
-      sales: rec.sales,
-      cashTips: rec.cashTips,
-      ccTips: rec.ccTips,
-      serviceCharge: rec.serviceCharge,
-      tipsTotal: rec.ccTips + rec.serviceCharge,
-      tipsPercent: rec.sales > 0 ? ((rec.ccTips + rec.serviceCharge) / rec.sales) * 100 : undefined,
-      busserPercent: rec.busserPercent,
-      startDate: new Date(s.meta.startDateISO),
-      dayOffset: Math.floor((i - 1) / 2),
-    };
-    blocks.push(periodBlock);
-  }
+  // Period blocks（只输出 s.periods 里实际存在的 period）
+  const blocks: PayrollModel['blocks'] = Object.entries(s.periods ?? {})
+    // 过滤：必须有记录，且在已知的 1..14 映射里
+    .filter(([pid, rec]) => !!rec && periodToDayMeal[pid as PeriodId])
+    // 按数字 periodId 排序，保证顺序稳定
+    .sort(([a], [b]) => Number(a) - Number(b))
+    // 映射为前端需要的 block 结构
+    .map(([pid, rec]) => {
+      const dm = periodToDayMeal[pid as PeriodId];
+      const sales = rec.sales ?? 0;
+      const ccTips = rec.ccTips ?? 0;
+      const serviceCharge = rec.serviceCharge ?? 0;
+
+      return {
+        periodId: pid as PeriodId,
+        day: dm.day,
+        meal: dm.meal,
+        sales,
+        cashTips: rec.cashTips ?? 0,
+        ccTips,
+        serviceCharge,
+        tipsTotal: ccTips + serviceCharge,
+        tipsPercent: sales > 0 ? ((ccTips + serviceCharge) / sales) * 100 : undefined,
+        busserPercent: rec.busserPercent ?? 0,
+        startDate: new Date(s.meta.startDateISO),
+        dayOffset: Math.floor((Number(pid) - 1) / 2),
+      };
+    });
 
   const roleMap = new Map<string, PayrollModel['sections'][number]>();
   for (const emp of s.employees) {

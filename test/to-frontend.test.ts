@@ -73,7 +73,7 @@ describe('fromStateToModel (Vitest)', () => {
     };
   });
 
-  it('transforms PayrollState to PayrollModel correctly', () => {
+  it('transforms PayrollState to PayrollModel correctly (only existing periods in blocks)', () => {
     const result: PayrollModel = fromStateToModel(baseState);
 
     // meta
@@ -88,8 +88,9 @@ describe('fromStateToModel (Vitest)', () => {
       totalTips: 500,
     });
 
-    // blocks: 14 个周期
-    expect(result.blocks).toHaveLength(14);
+    // blocks：仅包含传入的 period（此处只有 '1'）
+    expect(result.blocks.map((b) => b.periodId)).toEqual(['1']);
+    expect(result.blocks).toHaveLength(1);
 
     // 第 1 个周期（pid=1），有数据
     const b0 = result.blocks[0];
@@ -111,23 +112,6 @@ describe('fromStateToModel (Vitest)', () => {
     // startDate: 是 Date 实例，且日期部分与 meta.startDateISO 对齐
     expect(b0.startDate).toBeInstanceOf(Date);
     expect(b0.startDate.toISOString().slice(0, 10)).toBe('2025-09-21');
-
-    // 第 2 个周期（pid=2），默认 0 值
-    const b1 = result.blocks[1];
-    expect(b1.sales).toBe(0);
-    expect(b1.ccTips).toBe(0);
-    expect(b1.serviceCharge).toBe(0);
-    // 无销售时 tipsPercent 应为 undefined
-    expect(b1.tipsPercent).toBeUndefined();
-    // dayOffset: Math.floor((2-1)/2)=0
-    expect(b1.dayOffset).toBe(0);
-    // startDate 同一天
-    expect(b1.startDate).toBeInstanceOf(Date);
-    expect(b1.startDate.toISOString().slice(0, 10)).toBe('2025-09-21');
-
-    // 第 3 个周期（pid=3），校验 dayOffset=1
-    const b2 = result.blocks[2];
-    expect(b2.dayOffset).toBe(1);
 
     // sections：按 roleName 分桶
     expect(result.sections).toHaveLength(1);
@@ -189,7 +173,7 @@ describe('fromStateToModel (Vitest)', () => {
 
     fromStateToModel(heavy);
 
-    // 抓第一条调用参数
+    // 抓最后一次调用参数
     const call = (mockedAdjust as any).applyMinimumPayAdjustment.mock.calls.at(-1)?.[0];
     expect(call.regularHours).toBe(40);
     expect(call.overtimeHours).toBe(5);
