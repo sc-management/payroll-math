@@ -48,8 +48,8 @@ export function canonicalizeSnapshot(raw: RawPayrollWithFull): PayrollSnapshot {
   return {
     id: String(raw.id),
     locationId: String(raw.location_id),
-    startDate: raw.start_date,
-    endDate: raw.end_date,
+    startDate: raw.start_date.toISOString(),
+    endDate: raw.end_date.toISOString(),
     totalCashTips: raw.total_cash_tips,
     totalTips: raw.total_tips,
     periodRecords: raw.periodRecords.map((r) => ({

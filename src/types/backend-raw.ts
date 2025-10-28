@@ -1,8 +1,8 @@
 export interface RawPayrollWithFull {
   id: number;
   location_id: number;
-  start_date: string;
-  end_date: string;
+  start_date: Date;
+  end_date: Date;
   total_cash_tips: number;
   total_tips: number;
   periodRecords: Array<{
