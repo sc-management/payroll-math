@@ -43,7 +43,10 @@ export function fromStateToModel(s: PayrollState): PayrollModel {
       ccTips: rec.ccTips,
       serviceCharge: rec.serviceCharge,
       tipsTotal: rec.ccTips + rec.serviceCharge,
+      tipsPercent: rec.sales > 0 ? ((rec.ccTips + rec.serviceCharge) / rec.sales) * 100 : undefined,
       busserPercent: rec.busserPercent,
+      startDate: new Date(s.meta.startDateISO),
+      dayOffset: Math.floor((i - 1) / 2),
     };
     blocks.push(periodBlock);
   }
@@ -79,11 +82,11 @@ export function fromStateToModel(s: PayrollState): PayrollModel {
         Object.entries(emp.byPeriod).map(([pid, cell]) => [
           pid,
           {
-            hour: cell.hour,
-            cc: cell.cc,
-            percent: cell.percent,
-            cash: cell.cash,
-            total: cell.total,
+            hour: cell.hour || 0,
+            cc: cell.cc || 0,
+            percent: cell.percent || 0,
+            cash: cell.cash || 0,
+            total: cell.total || 0,
           },
         ]),
       ),

@@ -36,11 +36,11 @@ export type StatePeriod = {
 };
 
 export type StateEmployeeCell = {
-  hour?: number;
-  cc?: MoneyCents;
-  cash?: MoneyCents;
-  percent?: Ratio;
-  total?: MoneyCents; // 派生
+  hour: number;
+  cc: MoneyCents;
+  cash: MoneyCents;
+  percent: Ratio;
+  total: MoneyCents; // 派生
 };
 
 export type StateEmployee = {
@@ -66,8 +66,8 @@ export type PayrollState = {
     locationId: string;
     locationName: string;
     minPayRate: MoneyCents;
-    startDateISO?: string;
-    endDateISO?: string;
+    startDateISO: string;
+    endDateISO: string;
     totalCashTips?: MoneyCents;
     totalTips?: MoneyCents;
   };

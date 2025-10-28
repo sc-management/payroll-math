@@ -90,7 +90,10 @@ describe('fromStateToModel (Vitest)', () => {
 
     // blocks: 14 个周期
     expect(result.blocks).toHaveLength(14);
-    expect(result.blocks[0]).toMatchObject({
+
+    // 第 1 个周期（pid=1），有数据
+    const b0 = result.blocks[0];
+    expect(b0).toMatchObject({
       periodId: '1',
       day: 'Mon',
       meal: 'lunch',
@@ -100,9 +103,31 @@ describe('fromStateToModel (Vitest)', () => {
       serviceCharge: 0,
       tipsTotal: 200, // ccTips + serviceCharge
       busserPercent: 5,
+      dayOffset: 0, // Math.floor((1-1)/2) = 0
     });
-    // 未提供的周期补 0
-    expect(result.blocks[1].sales).toBe(0);
+    // tipsPercent = (ccTips + serviceCharge) / sales * 100 = 200/1000*100 = 20
+    expect(b0.tipsPercent).toBeCloseTo(20, 5);
+
+    // startDate: 是 Date 实例，且日期部分与 meta.startDateISO 对齐
+    expect(b0.startDate).toBeInstanceOf(Date);
+    expect(b0.startDate.toISOString().slice(0, 10)).toBe('2025-09-21');
+
+    // 第 2 个周期（pid=2），默认 0 值
+    const b1 = result.blocks[1];
+    expect(b1.sales).toBe(0);
+    expect(b1.ccTips).toBe(0);
+    expect(b1.serviceCharge).toBe(0);
+    // 无销售时 tipsPercent 应为 undefined
+    expect(b1.tipsPercent).toBeUndefined();
+    // dayOffset: Math.floor((2-1)/2)=0
+    expect(b1.dayOffset).toBe(0);
+    // startDate 同一天
+    expect(b1.startDate).toBeInstanceOf(Date);
+    expect(b1.startDate.toISOString().slice(0, 10)).toBe('2025-09-21');
+
+    // 第 3 个周期（pid=3），校验 dayOffset=1
+    const b2 = result.blocks[2];
+    expect(b2.dayOffset).toBe(1);
 
     // sections：按 roleName 分桶
     expect(result.sections).toHaveLength(1);
@@ -132,8 +157,6 @@ describe('fromStateToModel (Vitest)', () => {
     // logs：payroll / period / employee 分组
     expect(result.logs.all).toHaveLength(5);
     expect(result.logs.payroll).toHaveLength(1);
-
-    // ✅ 注意：如果 period 分组这里报错为 undefined，请修正源码里 Number.isInteger 的判断（见上方提醒）
     expect(result.logs.period['1']).toHaveLength(2); // 来自 type 2 与 type 4 两条
     expect(result.logs.employee['emp1']).toHaveLength(1);
     expect(result.logs.employee['emp2']).toHaveLength(1);
@@ -168,11 +191,8 @@ describe('fromStateToModel (Vitest)', () => {
 
     // 抓第一条调用参数
     const call = (mockedAdjust as any).applyMinimumPayAdjustment.mock.calls.at(-1)?.[0];
-    // payAmount = 基础 + 加班 + tips(通过 result 里 totalCc 回填，这里只检查基础/加班已算入)
-    // 注意：源码里是 regularHours*rate + overtimeHours*rate*1.5 + totalCc
     expect(call.regularHours).toBe(40);
     expect(call.overtimeHours).toBe(5);
-    // 这里不直接断言具体 payAmount 数值，而是确保包含 cc（100）以外的工资构成
     expect(call.payAmount).toBe(40 * 20 + 5 * 20 * 1.5 + 100);
   });
 });

@@ -16,7 +16,10 @@ export interface PeriodBlock {
   ccTips: number;
   serviceCharge: number;
   tipsTotal: number;
-  busserPercent?: number;
+  tipsPercent?: number;
+  busserPercent: number;
+  startDate: Date;
+  dayOffset: number;
 }
 
 export interface EmployeeRow {
@@ -30,11 +33,11 @@ export interface EmployeeRow {
 }
 
 export interface EmployeeCell {
-  hour?: number;
-  cc?: number;
-  percent?: number;
-  cash?: number;
-  total?: number;
+  hour: number;
+  cc: number;
+  percent: number;
+  cash: number;
+  total: number;
 }
 
 export interface PayrollMeta {
