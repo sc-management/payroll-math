@@ -188,7 +188,7 @@ export function fromCanonicalToState(snap: PayrollSnapshot, rates: PayRateRecord
     const pid = rec.periodId;
 
     row.byPeriod[pid] = {
-      hour: floatToCents(rec.hour),
+      hour: rec.hour,
       cc: floatToCents(rec.tipsCc),
       cash: floatToCents(rec.tipsCash),
       percent: clamp01(rec.percent ?? 0),

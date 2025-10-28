@@ -1,6 +1,7 @@
 import { Day, Meal, PayrollState, PeriodId } from './payroll-types';
 import { PayrollModel } from '../types/frontend';
 import { applyMinimumPayAdjustment } from '../core/minimumPay';
+import { num } from './number';
 
 const periodToDayMeal: Record<PeriodId, { day: Day; meal: Meal }> = {
   '1': { day: 'Mon', meal: 'lunch' },
@@ -22,7 +23,8 @@ const periodToDayMeal: Record<PeriodId, { day: Day; meal: Meal }> = {
 export function fromStateToModel(s: PayrollState): PayrollModel {
   // Period blocks (1..14)
   const blocks: PayrollModel['blocks'] = [];
-  for (let pid = '1' as PeriodId; pid <= '14'; pid = (pid + 1) as PeriodId) {
+  for (let i = 1; i <= 14; i++) {
+    const pid = String(i) as PeriodId;
     const dm = periodToDayMeal[pid];
     const rec = s.periods?.[pid] || {
       id: pid,
@@ -103,9 +105,9 @@ export function fromStateToModel(s: PayrollState): PayrollModel {
   // 按 period_id 聚合 period logs
   for (const log of periodLogs) {
     const maybePid: string = log.raw?.period_id ? String(log.raw?.period_id) : log.raw?.periodId;
-    if (Number.isInteger(maybePid) && maybePid >= '1' && maybePid <= '14') {
-      const pid = maybePid as PeriodId;
-      // 先安全初始化（??= 比较优雅）
+    const n = num(maybePid);
+    if (Number.isInteger(n) && n >= 1 && n <= 14) {
+      const pid = String(n) as PeriodId;
       grouped.period[pid] ??= [];
       grouped.period[pid]!.push(log);
     }
