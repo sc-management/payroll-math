@@ -1,6 +1,6 @@
 {
   "name": "@shaking-crab/payroll-math",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "description": "Pure TypeScript payroll calculators for FE & BE",
   "license": "MIT",
   "type": "module",
