@@ -1,5 +1,6 @@
 // src/spread.ts
-import { ShiftRecord, SpreadResult } from './payroll-types';
+
+import { ShiftRecord, SpreadResult } from './types';
 
 export interface SpreadInput {
   records: ShiftRecord[];

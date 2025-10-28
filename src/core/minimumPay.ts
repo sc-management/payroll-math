@@ -1,4 +1,4 @@
-import { MinPayAdjustInput, MinPayAdjustResult } from './payroll-types';
+import { MinPayAdjustInput, MinPayAdjustResult } from './types';
 
 export function applyMinimumPayAdjustment(input: MinPayAdjustInput): MinPayAdjustResult {
   const { regularHours, overtimeHours, payAmount, tips, tipsCash, bonus, minPayRate } = input;

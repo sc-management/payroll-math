@@ -1,4 +1,4 @@
-import { ShiftRecord, WeeklyHoursPay } from './payroll-types';
+import { ShiftRecord, WeeklyHoursPay } from './types';
 
 export function computeWeeklyOvertime(records: ShiftRecord[]): WeeklyHoursPay {
   // 先按日期排序，保证 overtime 切分顺序一致
