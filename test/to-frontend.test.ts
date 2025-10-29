@@ -166,7 +166,7 @@ describe('fromStateToModel (Vitest)', () => {
         payRate: 20,
         payType: 1,
         byPeriod: {
-          '1': { hour: 45, cc: 100, cash: 0, total: 100 },
+          '1': { hour: 45, cc: 100, cash: 0, total: 100, percent: 0.2 },
         },
       },
     ];

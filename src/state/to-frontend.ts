@@ -85,7 +85,10 @@ export function fromStateToModel(s: PayrollState): PayrollModel {
             cc: cell.cc || 0,
             percent: cell.percent || 0,
             cash: cell.cash || 0,
-            total: cell.total || 0,
+            total:
+              (cell.cc || 0) +
+              (cell.cash || 0) +
+              ((emp.payType === 2 ? 0 : (cell.hour || 0) * emp.payRate) || 0),
           },
         ]),
       ),

@@ -27,7 +27,6 @@ function makeRaw(): RawPayrollWithFull {
         cash_tips: 10.23,
         cc_tips: 20.34,
         sc: 5.67,
-        tips_total: 26.01,
         bus_percent: 0.055,
       },
     ],
@@ -44,7 +43,6 @@ function makeRaw(): RawPayrollWithFull {
         hour: 10,
         tips_cc: 100.0,
         tips_cash: 50.0,
-        tips_total: 150.0,
         percent: 0.1,
       },
       {
@@ -60,7 +58,6 @@ function makeRaw(): RawPayrollWithFull {
         hour: 5.5,
         tips_cc: 10,
         tips_cash: 5,
-        tips_total: 15,
         percent: 1.2, // >1，后续应 clamp 到 1
       },
       {
@@ -76,7 +73,6 @@ function makeRaw(): RawPayrollWithFull {
         hour: 8,
         tips_cc: 0,
         tips_cash: 0,
-        tips_total: 0,
         percent: 0,
       },
     ],
@@ -185,7 +181,6 @@ describe('canonicalizeSnapshot', () => {
           cashTips: raw.periodRecords[0].cash_tips,
           ccTips: raw.periodRecords[0].cc_tips,
           serviceCharge: raw.periodRecords[0].sc,
-          tipsTotal: raw.periodRecords[0].tips_total,
           busserPercent: raw.periodRecords[0].bus_percent,
         },
       ],
@@ -202,7 +197,6 @@ describe('canonicalizeSnapshot', () => {
           hour: raw.employeeRecords[0].hour!,
           tipsCc: raw.employeeRecords[0].tips_cc!,
           tipsCash: raw.employeeRecords[0].tips_cash!,
-          tipsTotal: raw.employeeRecords[0].tips_total!,
           percent: raw.employeeRecords[0].percent!,
         },
         {
@@ -217,7 +211,6 @@ describe('canonicalizeSnapshot', () => {
           hour: raw.employeeRecords[1].hour!,
           tipsCc: raw.employeeRecords[1].tips_cc!,
           tipsCash: raw.employeeRecords[1].tips_cash!,
-          tipsTotal: raw.employeeRecords[1].tips_total!,
           percent: raw.employeeRecords[1].percent!,
         },
         {
@@ -232,7 +225,6 @@ describe('canonicalizeSnapshot', () => {
           hour: raw.employeeRecords[2].hour!,
           tipsCc: raw.employeeRecords[2].tips_cc!,
           tipsCash: raw.employeeRecords[2].tips_cash!,
-          tipsTotal: raw.employeeRecords[2].tips_total!,
           percent: raw.employeeRecords[2].percent!,
         },
       ],
@@ -322,7 +314,6 @@ describe('fromCanonicalToState', () => {
       hour: 10,
       cc: 10000,
       cash: 5000,
-      total: 15000,
       percent: 0.1,
     });
 
@@ -331,7 +322,6 @@ describe('fromCanonicalToState', () => {
       hour: 5.5,
       cc: 1000,
       cash: 500,
-      total: 1500,
       percent: 1, // 1.2 → clamp 到 1
     });
 

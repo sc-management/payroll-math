@@ -60,7 +60,6 @@ export function canonicalizeSnapshot(raw: RawPayrollWithFull): PayrollSnapshot {
       cashTips: r.cash_tips,
       ccTips: r.cc_tips,
       serviceCharge: r.sc,
-      tipsTotal: r.tips_total,
       busserPercent: r.bus_percent,
     })),
     employeeRecords: raw.employeeRecords.map((e) => ({
@@ -75,7 +74,6 @@ export function canonicalizeSnapshot(raw: RawPayrollWithFull): PayrollSnapshot {
       hour: e.hour || 0,
       tipsCc: e.tips_cc || 0,
       tipsCash: e.tips_cash || 0,
-      tipsTotal: e.tips_total || 0,
       percent: e.percent || 0,
     })),
     location: {
@@ -192,7 +190,6 @@ export function fromCanonicalToState(snap: PayrollSnapshot, rates: PayRateRecord
       cc: floatToCents(rec.tipsCc),
       cash: floatToCents(rec.tipsCash),
       percent: clamp01(rec.percent ?? 0),
-      total: floatToCents(rec.tipsTotal),
     };
   }
 

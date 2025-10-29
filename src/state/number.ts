@@ -2,7 +2,8 @@ export type MoneyCents = number; // 全程用分
 export type Ratio = number; // 0..1，进入时 clamp
 
 export const num = (v: any) => (Number.isFinite(Number(v)) ? Number(v) : 0);
-export const empKey = (uid: string | number, periodId: string | number) => `${periodId}:${uid}`;
+export const empKey = (uid: string | number, periodId: string | number, roleName: string) =>
+  `${periodId}:${uid}:${roleName}`;
 export const clamp01 = (x: number): Ratio => Math.max(0, Math.min(1, x));
 
 export function floatToCents(n: number | string): MoneyCents {

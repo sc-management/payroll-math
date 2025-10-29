@@ -13,7 +13,6 @@ export interface RawPayrollWithFull {
     cash_tips: number;
     cc_tips: number;
     sc: number;
-    tips_total: number;
     bus_percent: number;
   }>;
   employeeRecords: Array<{
@@ -28,7 +27,6 @@ export interface RawPayrollWithFull {
     hour?: number | null;
     tips_cc?: number | null;
     tips_cash?: number | null;
-    tips_total?: number | null;
     percent?: number | null;
   }>;
   location: {

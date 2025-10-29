@@ -14,7 +14,6 @@ export interface PayrollSnapshot {
     cashTips: number;
     ccTips: number;
     serviceCharge: number;
-    tipsTotal: number;
     busserPercent: number; // 0..1
   }>;
 
@@ -30,7 +29,6 @@ export interface PayrollSnapshot {
     hour: number;
     tipsCc: number;
     tipsCash: number;
-    tipsTotal: number;
     percent: number; // 0..1
   }>;
 
