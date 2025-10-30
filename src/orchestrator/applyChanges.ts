@@ -10,6 +10,7 @@ import { resolveDependencies } from './resolve';
 import { produce } from 'immer';
 import { applyDirectEdits } from './direct-edits';
 import { buildDiff } from './diff';
+import { recomputeAffected } from './recompute';
 
 export type ApplyOptions = {
   // 性能优化/一致性控制
@@ -35,6 +36,7 @@ export function applyChanges(current: PayrollState, changes: PayrollChange[]): A
   // 复制 + 直接落格子更改 + 重算受影响区域
   const nextState: PayrollState = produce(current, (draft) => {
     applyDirectEdits(draft, normalized);
+    recomputeAffected(draft, affected);
     recomputeMetaTotals(draft);
   });
 

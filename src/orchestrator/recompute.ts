@@ -36,12 +36,20 @@ export function recomputeAffected(draft: PayrollState, affected: Affected): Affe
     const poolCc = period?.ccTips ?? 0;
     const serviceCharge = period?.serviceCharge ?? 0;
     const busserPercent = period?.busserPercent ?? 0;
+    const hasEmployeeKeysForPid = Array.from(affected.employees).some((k) =>
+      k.startsWith(`${pid}:`),
+    );
 
     for (const role of ROLE_ORDER) {
-      // 仅在该 period 中、且在本次“候选受影响 employees 集合”里的员工
-      const roleEmployees = draft.employees.filter(
-        (e) => e.roleName === role && affected.employees.has(`${pid}:${e.uid}:${e.roleName}`),
-      );
+      const roleIsAffected = affected.roles.size === 0 || affected.roles.has(role);
+      const roleEmployees = draft.employees.filter((e) => {
+        if (e.roleName !== role) return false;
+        // 正常路径：有明确的逐员工集合 -> 只计算这些员工；
+        // 兜底路径：没有逐员工集合 -> 仅当该角色受影响时计算该 period 下本角色的所有员工
+        return hasEmployeeKeysForPid
+          ? affected.employees.has(`${pid}:${e.uid}:${e.roleName}`)
+          : roleIsAffected;
+      });
       if (!roleEmployees.length) continue;
 
       // 依赖项：其他角色/优先角色的当前总计（以最新 draft 为准，顺序已确保）
