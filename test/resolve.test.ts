@@ -1,0 +1,68 @@
+import { describe, it, expect } from 'vitest';
+import { resolveDependencies } from '../src/orchestrator/resolve';
+import { makeEmployee, makeState, P1 } from './helpers/factories';
+
+// empKey 形如 `${periodId}:${uid}:${roleName}`，resolve.ts 内部使用
+
+describe('resolveDependencies', () => {
+  it('period 级变更影响 Server/Busser 员工集合与对应角色', () => {
+    const state = makeState({
+      employees: [
+        makeEmployee({ uid: '1', roleName: 'Server' }),
+        makeEmployee({ uid: '2', roleName: 'Busser' }),
+        makeEmployee({ uid: '3', roleName: 'Host' }),
+      ],
+    });
+
+    const res = resolveDependencies(state, [
+      { kind: 'period', periodId: P1, field: 'ccTips', value: 500 },
+    ]);
+
+    expect(res.periods).toEqual(new Set([P1]));
+    // server & busser 加入 employees
+    expect([...res.employees]).toContain(`${P1}:1:Server`);
+    expect([...res.employees]).toContain(`${P1}:2:Busser`);
+    expect(res.roles).toEqual(new Set(['Server', 'Busser']));
+  });
+
+  it('优先角色（Host/Bartender）员工级变更会级联影响 Server/Busser', () => {
+    const state = makeState({
+      employees: [
+        makeEmployee({ uid: '10', roleName: 'Host' }),
+        makeEmployee({ uid: '20', roleName: 'Server' }),
+        makeEmployee({ uid: '30', roleName: 'Busser' }),
+      ],
+    });
+
+    const res = resolveDependencies(state, [
+      {
+        kind: 'employee',
+        periodId: P1,
+        uid: '10',
+        roleName: 'Host',
+        field: 'cc',
+        value: 1,
+      },
+    ]);
+
+    expect(res.periods.size).toBe(0); // 员工级，不自动把 period 放进去
+    expect(res.employees).toEqual(new Set([`${P1}:10:Host`, `${P1}:20:Server`, `${P1}:30:Busser`]));
+    expect(res.roles).toEqual(new Set(['Host', 'Server', 'Busser']));
+  });
+
+  it('普通角色员工级变更只影响自己', () => {
+    const state = makeState({
+      employees: [
+        makeEmployee({ uid: '20', roleName: 'Server' }),
+        makeEmployee({ uid: '30', roleName: 'Busser' }),
+      ],
+    });
+
+    const res = resolveDependencies(state, [
+      { kind: 'employee', periodId: P1, uid: '20', roleName: 'Server', field: 'cc', value: 1 },
+    ]);
+
+    expect(res.employees).toEqual(new Set([`${P1}:20:Server`]));
+    expect(res.roles).toEqual(new Set(['Server']));
+  });
+});

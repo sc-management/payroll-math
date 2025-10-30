@@ -39,8 +39,8 @@ export function recomputeAffected(draft: PayrollState, affected: Affected): Affe
 
     for (const role of ROLE_ORDER) {
       // 仅在该 period 中、且在本次“候选受影响 employees 集合”里的员工
-      const roleEmployees = draft.employees.filter((e) =>
-        affected.employees.has(`${pid}:${e.uid}:${e.roleName}`),
+      const roleEmployees = draft.employees.filter(
+        (e) => e.roleName === role && affected.employees.has(`${pid}:${e.uid}:${e.roleName}`),
       );
       if (!roleEmployees.length) continue;
 

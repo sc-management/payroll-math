@@ -45,7 +45,7 @@ describe('fromStateToModel (Vitest)', () => {
           payRate: 20,
           payType: 1,
           byPeriod: {
-            '1': { hour: 10, cc: 100, cash: 50, total: 150, percent: 0.1 },
+            '1': { hour: 10, cc: 100, cash: 50, percent: 0.1 },
           },
         },
         {
@@ -56,7 +56,7 @@ describe('fromStateToModel (Vitest)', () => {
           payRate: 25,
           payType: 1,
           byPeriod: {
-            '1': { hour: 5, cc: 50, cash: 25, total: 75, percent: 0.05 },
+            '1': { hour: 5, cc: 50, cash: 25, percent: 0.05 },
           },
         },
       ],
@@ -166,7 +166,7 @@ describe('fromStateToModel (Vitest)', () => {
         payRate: 20,
         payType: 1,
         byPeriod: {
-          '1': { hour: 45, cc: 100, cash: 0, total: 100, percent: 0.2 },
+          '1': { hour: 45, cc: 100, cash: 0, percent: 0.2 },
         },
       },
     ];
