@@ -15,7 +15,7 @@ vi.mock('../src/orchestrator/diff', () => ({
   }),
 }));
 
-import { applyChangesState } from '../src/orchestrator/applyChanges';
+import { applyChanges } from '../src/orchestrator/applyChanges';
 
 // calcEmployee 不参与 applyChangesState（此处只验证 totals & 受影响集合透传），可不 mock
 describe('applyChangesState', () => {
@@ -30,7 +30,7 @@ describe('applyChangesState', () => {
       employees: [makeEmployee({ uid: '1', roleName: 'Server' })],
     });
 
-    const { next, affected, diff } = applyChangesState(state, [
+    const { next, affected, diff } = applyChanges(state, [
       { kind: 'period', periodId: P1, field: 'cashTips', value: 300 }, // 从100 -> 300
     ]);
 
@@ -54,7 +54,7 @@ describe('applyChangesState', () => {
       employees: [makeEmployee({ uid: '1', roleName: 'Server' })],
     });
 
-    const { next } = applyChangesState(state, [
+    const { next } = applyChanges(state, [
       { kind: 'employee', periodId: P1, uid: '1', roleName: 'Server', field: 'percent', value: 5 }, // 会被 clamp01
     ]);
 

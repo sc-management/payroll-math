@@ -6,6 +6,8 @@ export { computeWeeklyOvertime } from './core/overtime';
 export { computeSpreadOfHours } from './core/spread';
 export { applyMinimumPayAdjustment } from './core/minimumPay';
 
+export { applyChanges } from './orchestrator/applyChanges';
+
 export * from './state/payroll-types';
 export { fromBackendSnapshotToState } from './state/from-backend';
 export { fromStateToModel } from './state/to-frontend';

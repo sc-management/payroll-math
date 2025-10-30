@@ -27,10 +27,7 @@ export type ApplyStateResult = {
   diff: PayrollDiff; // 字段级 before/after
 };
 
-export function applyChangesState(
-  current: PayrollState,
-  changes: PayrollChange[],
-): ApplyStateResult {
+export function applyChanges(current: PayrollState, changes: PayrollChange[]): ApplyStateResult {
   // 归一化 + 依赖传播
   const normalized = normalizeChanges(changes);
   const affected = resolveDependencies(current, normalized);
