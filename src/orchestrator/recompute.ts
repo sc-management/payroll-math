@@ -21,13 +21,7 @@ function eq2(a1: number, a2: number, b1: number, b2: number) {
   return a1 === b1 && a2 === b2;
 }
 
-export function recomputeAffected(draft: PayrollState, affected: Affected): Affected {
-  const actualAffected: Affected = {
-    periods: new Set<string>(),
-    employees: new Set<string>(),
-    roles: new Set<string>(),
-  };
-
+export function recomputeAffected(draft: PayrollState, affected: Affected): void {
   // 逐 period 处理
   for (const pid of affected.periods) {
     const period = draft.periods[pid];
@@ -92,14 +86,7 @@ export function recomputeAffected(draft: PayrollState, affected: Affected): Affe
         });
         cell.cc = res.tipsCc;
         cell.cash = res.tipsCash;
-
-        // 标记变动
-        actualAffected.periods.add(pid);
-        actualAffected.employees.add(`${pid}:${e.uid}:${e.roleName}`);
-        actualAffected.roles.add(role);
       }
     }
   }
-
-  return actualAffected;
 }

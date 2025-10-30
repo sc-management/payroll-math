@@ -38,13 +38,13 @@ async function importApplyChanges() {
   return mod.applyChanges as typeof import('../src').applyChanges;
 }
 
-describe('applyChangesState', () => {
+describe('applyChanges (new resolve/recompute contract)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.resetModules(); // 每个用例重新评估模块依赖（配合动态导入）
   });
 
-  it('period 变更会重算 meta totals，并返回 affected/diff', async () => {
+  it('period 变更会重算 meta totals；affected 仅包含 resolveDependencies 的结果', async () => {
     // 使用真实 resolveDependencies
     const applyChanges = await importApplyChanges();
 
@@ -53,7 +53,7 @@ describe('applyChangesState', () => {
         [P1]: makePeriod({ id: P1, cashTips: 100, ccTips: 200 }),
         [P2]: makePeriod({ id: P2, cashTips: 50, ccTips: 50 }),
       },
-      employees: [makeEmployee({ uid: '1', roleName: 'Server' })],
+      employees: [makeEmployee({ uid: '1', roleName: 'Server' })], // 默认无 cell
     });
 
     const { next, affected, diff } = applyChanges(state, [
@@ -64,10 +64,10 @@ describe('applyChangesState', () => {
     expect(next.meta.totalCashTips).toBe(350);
     expect(next.meta.totalTips).toBe(600);
 
-    // affected（由真实 resolveDependencies 决定）
-    expect(affected.periods.has(P1)).toBe(true);
-    expect([...affected.employees]).toContain(`${P1}:1:Server`);
-    expect(affected.roles.has('Server')).toBe(true);
+    // affected：由于该 Server 在 P1 下没有 cell 且未被直接点名，resolve 不会把它加入
+    expect(affected.periods).toEqual(new Set([P1]));
+    expect(affected.employees.size).toBe(0);
+    expect(affected.roles.size).toBe(0);
 
     // diff.meta 由 stub 生成；并且 buildDiff 应该被以 (before, after, affected) 调用
     expect(diff.meta.totalCashTips?.after).toBe(350);
@@ -84,14 +84,18 @@ describe('applyChangesState', () => {
       employees: [makeEmployee({ uid: '1', roleName: 'Server' })],
     });
 
-    const { next } = applyChanges(state, [
-      { kind: 'employee', periodId: P1, uid: '1', roleName: 'Server', field: 'percent', value: 5 }, // 会被 clamp01
+    const { next, affected } = applyChanges(state, [
+      { kind: 'employee', periodId: P1, uid: '1', roleName: 'Server', field: 'percent', value: 5 }, // 会被 clamp01 → 1
     ]);
 
     expect(next.employees[0].byPeriod[P1].percent).toBe(1);
+    // employee 的 change → 员工被加入 affected，但不把 pid 放入 periods（依据新约定）
+    expect(affected.employees).toEqual(new Set([`${P1}:1:Server`]));
+    expect(affected.periods.size).toBe(0);
+    expect(affected.roles).toEqual(new Set(['Server']));
   });
 
-  it('period-only fallback：当 resolveDependencies 不返回员工集合时，仍会重算该 period 下所有员工', async () => {
+  it('period-only fallback：resolve 返回 employees 为空但声明了角色时，recompute 仍会重算该 period 下对应角色的所有员工', async () => {
     // 针对本用例：mock resolveDependencies，让 employees 为空（只返回 period 与角色）
     vi.doMock('../src/orchestrator/resolve', () => {
       return {
@@ -119,7 +123,7 @@ describe('applyChangesState', () => {
       { kind: 'period', periodId: P1, field: 'ccTips', value: 1000 }, // 触发 period 级变更
     ]);
 
-    // 期望：尽管 affected.employees 为空，recomputeAffected 仍然会对该 period 下所有 Server 员工计算
+    // 期望：尽管 affected.employees 为空，recompute 仍然会对该 period 下所有 Server 员工计算
     // calcEmployee mock：cc=10%*1000=100；cash=5%*500=25
     expect(next.employees[0].byPeriod[P1].cc).toBe(100);
     expect(next.employees[0].byPeriod[P1].cash).toBe(25);
@@ -127,20 +131,17 @@ describe('applyChangesState', () => {
     expect(next.employees[1].byPeriod[P1].cc).toBe(100);
     expect(next.employees[1].byPeriod[P1].cash).toBe(25);
 
-    // affected 来自 recomputeAffected（可能补入 period 下的员工）
-    // 不再强制 size=0，而是验证至少包含该 period 的 Server 员工
-    expect([...affected.employees]).toEqual(
-      expect.arrayContaining([`${P1}:1:Server`, `${P1}:2:Server`]),
-    );
+    // affected 来自 resolve（不会被 recompute 补全）
     expect(affected.periods).toEqual(new Set([P1]));
+    expect(affected.roles).toEqual(new Set(['Server']));
+    expect(affected.employees.size).toBe(0);
 
     // buildDiff 第三个参数应是我们 mock 的 affected
-    // 也顺便验证 totals 更新（可选）
     expect(vi.mocked(buildDiff).mock.calls[0][2]).toEqual(affected);
     expect(diff.meta.totalTips?.after).toBeTypeOf('number');
   });
 
-  it('integration: actualAffected is returned and passed to buildDiff (no diffMod import)', async () => {
+  it('integration: buildDiff 的第三参与返回的 affected 一致（不依赖 recompute 产出）', async () => {
     // 使用顶部已 mock 的 buildDiff（不再动态导入 diff 模块）
     const applyChanges = await importApplyChanges();
 
@@ -153,7 +154,7 @@ describe('applyChangesState', () => {
       { kind: 'period', periodId: P1, field: 'cashTips', value: 300 },
     ]);
 
-    // 直接用顶层的 buildDiff 断言第三个参数就是 actualAffected
+    // 直接用顶层的 buildDiff 断言第三个参数就是返回的 affected（来自 resolve）
     expect(vi.mocked(buildDiff).mock.calls[0][2]).toEqual(affected);
     expect(affected.periods.has(P1)).toBe(true);
   });

@@ -43,11 +43,10 @@ describe('recomputeAffected', () => {
       roles: new Set<string>(),
     };
 
-    const out = recomputeAffected(state, inputAffected);
+    recomputeAffected(state, inputAffected);
 
     // e1: before 有 cc=10/cash=5，新结果=0/0 => 写入并计入
     // e2: before 不存在且新结果=0/0 => 不创建、不计入
-    expect(out.employees).toEqual(new Set([`${P1}:1:Server`]));
     expect(state.employees[0].byPeriod[P1].cc).toBe(0);
     expect(state.employees[0].byPeriod[P1].cash).toBe(0);
     expect(state.employees[1].byPeriod[P1]).toBeUndefined();
@@ -64,7 +63,7 @@ describe('recomputeAffected', () => {
       employees: [e1],
     });
 
-    const out = recomputeAffected(state, {
+    recomputeAffected(state, {
       periods: new Set([P1]),
       employees: new Set([`${P1}:1:Server`]),
       roles: new Set<string>(),
@@ -73,9 +72,6 @@ describe('recomputeAffected', () => {
     // mock 规则: cc = 10%*ccPoolAfterOthers(=1000) = 100；cash = 5%*cashPoolAfterOthers(=500) = 25
     expect(state.employees[0].byPeriod[P1].cc).toBe(100);
     expect(state.employees[0].byPeriod[P1].cash).toBe(25);
-    expect(out.employees).toEqual(new Set([`${P1}:1:Server`]));
-    expect(out.periods).toEqual(new Set([P1]));
-    expect(out.roles.has('Server')).toBe(true);
   });
 
   it('Host/Bartender 的占用从当前 draft 汇总读取（顺序已保证）', () => {
@@ -96,7 +92,7 @@ describe('recomputeAffected', () => {
     });
 
     // 只把 Server 作为候选，Host的 300 会被当成“others”扣除
-    const out = recomputeAffected(state, {
+    recomputeAffected(state, {
       periods: new Set([P1]),
       employees: new Set([`${P1}:20:Server`]),
       roles: new Set<string>(),
@@ -104,6 +100,5 @@ describe('recomputeAffected', () => {
 
     // ccPoolAfterOthers = 1000 - hostTotalCcTips(=300) = 700 -> 10% = 70
     expect(state.employees[1].byPeriod[P1].cc).toBe(70);
-    expect(out.employees).toEqual(new Set([`${P1}:20:Server`]));
   });
 });
