@@ -30,21 +30,27 @@ export type ApplyStateResult = {
 
 export function applyChanges(current: PayrollState, changes: PayrollChange[]): ApplyStateResult {
   // 归一化 + 依赖传播
+  let actualAffected: {
+    periods: Set<string>;
+    employees: Set<string>;
+    roles: Set<string>;
+  } | null = null;
   const normalized = normalizeChanges(changes);
-  const affected = resolveDependencies(current, normalized);
+  const affectedHint = resolveDependencies(current, normalized);
 
   // 复制 + 直接落格子更改 + 重算受影响区域
   const nextState: PayrollState = produce(current, (draft) => {
     applyDirectEdits(draft, normalized);
-    recomputeAffected(draft, affected);
+    actualAffected = recomputeAffected(draft, affectedHint);
     recomputeMetaTotals(draft);
   });
 
   // 生成 diff（用于写库/日志）
-  const diff = buildDiff(current, nextState, affected);
+  // 使用 recompute 实际写入结果的受影响集合，确保 diff 与真实落库一致
+  const diff = buildDiff(current, nextState, actualAffected ?? affectedHint);
 
   const next = nextState;
-  return { next, affected, diff };
+  return { next, affected: actualAffected ?? affectedHint, diff };
 }
 
 function normalizeChanges(changes: PayrollChange[]): PayrollChange[] {

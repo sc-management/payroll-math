@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { fromStateToModel, PayrollModel, PayrollState } from '../src';
+import { makeEmployee, makePeriod, makeState, P1 } from './helpers/factories';
 
 // ✅ Mock minimumPay
 vi.mock('../src/core/minimumPay', () => ({
@@ -15,7 +16,7 @@ describe('fromStateToModel (Vitest)', () => {
   let baseState: PayrollState;
 
   beforeEach(() => {
-    baseState = {
+    baseState = makeState({
       meta: {
         payrollId: '123',
         locationId: '1',
@@ -27,38 +28,34 @@ describe('fromStateToModel (Vitest)', () => {
         totalTips: 500,
       },
       periods: {
-        '1': {
-          id: '1',
+        [P1]: makePeriod({
+          id: P1,
           sales: 1000,
           cashTips: 100,
           ccTips: 200,
           serviceCharge: 0,
           busserPercent: 5,
-        },
+        }),
       },
       employees: [
-        {
+        makeEmployee({
           uid: 'emp1',
           roleId: 'r1',
           roleName: 'Server',
           name: 'Alice',
           payRate: 20,
           payType: 1,
-          byPeriod: {
-            '1': { hour: 10, cc: 100, cash: 50, percent: 0.1 },
-          },
-        },
-        {
+          byPeriod: { [P1]: { hour: 10, cc: 100, cash: 50, percent: 0.1 } },
+        }),
+        makeEmployee({
           uid: 'emp2',
           roleId: 'r1',
           roleName: 'Server',
           name: 'Bob',
           payRate: 25,
           payType: 1,
-          byPeriod: {
-            '1': { hour: 5, cc: 50, cash: 25, percent: 0.05 },
-          },
-        },
+          byPeriod: { [P1]: { hour: 5, cc: 50, cash: 25, percent: 0.05 } },
+        }),
       ],
       logs: [
         // payroll log
@@ -70,7 +67,7 @@ describe('fromStateToModel (Vitest)', () => {
         { type: 3, timestamp: '2025-09-22T13:00:00Z', operatorName: 'op', raw: { uid: 'emp1' } },
         { type: 5, timestamp: '2025-09-22T14:00:00Z', operatorName: 'op', raw: { uid: 'emp2' } },
       ],
-    };
+    });
   });
 
   it('transforms PayrollState to PayrollModel correctly (only existing periods in blocks)', () => {

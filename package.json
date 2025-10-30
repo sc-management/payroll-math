@@ -21,6 +21,8 @@
   "scripts": {
     "build": "tsup --config tsup.config.ts",
     "test": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:ui:cov": "vitest --ui --coverage",
     "dev": "vitest watch",
     "prepublishOnly": "npm run build && npm test",
     "lint": "eslint src --ext .ts",

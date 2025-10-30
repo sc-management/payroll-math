@@ -127,13 +127,34 @@ describe('applyChangesState', () => {
     expect(next.employees[1].byPeriod[P1].cc).toBe(100);
     expect(next.employees[1].byPeriod[P1].cash).toBe(25);
 
-    // affected 来自 resolveDependencies（按我们的 mock，它的 employees 为空）
+    // affected 来自 recomputeAffected（可能补入 period 下的员工）
+    // 不再强制 size=0，而是验证至少包含该 period 的 Server 员工
+    expect([...affected.employees]).toEqual(
+      expect.arrayContaining([`${P1}:1:Server`, `${P1}:2:Server`]),
+    );
     expect(affected.periods).toEqual(new Set([P1]));
-    expect(affected.employees.size).toBe(0);
 
     // buildDiff 第三个参数应是我们 mock 的 affected
     // 也顺便验证 totals 更新（可选）
     expect(vi.mocked(buildDiff).mock.calls[0][2]).toEqual(affected);
     expect(diff.meta.totalTips?.after).toBeTypeOf('number');
+  });
+
+  it('integration: actualAffected is returned and passed to buildDiff (no diffMod import)', async () => {
+    // 使用顶部已 mock 的 buildDiff（不再动态导入 diff 模块）
+    const applyChanges = await importApplyChanges();
+
+    const state = makeState({
+      periods: { [P1]: makePeriod({ id: P1, cashTips: 100, ccTips: 200 }) },
+      employees: [makeEmployee({ uid: '1', roleName: 'Server' })],
+    });
+
+    const { affected } = applyChanges(state, [
+      { kind: 'period', periodId: P1, field: 'cashTips', value: 300 },
+    ]);
+
+    // 直接用顶层的 buildDiff 断言第三个参数就是 actualAffected
+    expect(vi.mocked(buildDiff).mock.calls[0][2]).toEqual(affected);
+    expect(affected.periods.has(P1)).toBe(true);
   });
 });

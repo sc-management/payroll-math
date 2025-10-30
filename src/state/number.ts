@@ -15,8 +15,6 @@ export function floatToCents(n: number | string): MoneyCents {
   return Math.round((n + Number.EPSILON) * 100);
 }
 
-export const centsToFloat = (c: MoneyCents) => Math.round(c) / 100;
-
 export const sumCents = (xs: MoneyCents[]) => xs.reduce((a, b) => a + b, 0);
 
 // 稳定整分分摊：按权重/顺序把余数的几分钱分掉
