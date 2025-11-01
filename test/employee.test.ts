@@ -39,18 +39,18 @@ describe('calculateEmployee (pure)', () => {
     });
   });
 
-  it('Other roles（Bartender/Host...）：直接返回 cc/cash（与池无关）', () => {
+  it('Other roles（Bartender/Host...）：不参与池分配，但输出仍按整美元取整', () => {
     const input: EmployeeCalcInput = {
       roleName: 'Bartender',
-      cc: 1234,
-      cash: 567,
+      cc: 1200,
+      cash: 500,
       percent: 0.9, // 不起作用
       ...basePools,
     };
     const result = calculateEmployee(input);
     expect(result).toEqual<EmployeeCalcResult>({
-      tipsCc: 1234,
-      tipsCash: 567,
+      tipsCc: 1200,
+      tipsCash: 500,
     });
   });
 
@@ -144,5 +144,28 @@ describe('calculateEmployee (pure)', () => {
       busserPercent: 1,
     };
     expect(calculateEmployee(busserOnlyServer)).toEqual({ tipsCc: 0, tipsCash: 0 });
+  });
+
+  it('按美元四舍五入：cent → dollar → round → cent', () => {
+    // 这里构造一个会得到非整百分的场景：
+    // Server 独享（busserPercent=0），percent=1，
+    // 使得最终 tipsCc=1234、tipsCash=567（未取整前）
+    const input: EmployeeCalcInput = {
+      roleName: 'Server',
+      cc: 0,
+      cash: 0,
+      percent: 1,
+      ccPoolAfterOthers: 1234, // => $12.34
+      cashPoolAfterOthers: 567, // => $5.67
+      busserPercent: 0,
+    };
+
+    const result = calculateEmployee(input);
+
+    // 期望按美元四舍五入：$12.34 -> $12 (1200c)，$5.67 -> $6 (600c)
+    expect(result).toEqual<EmployeeCalcResult>({
+      tipsCc: 1200,
+      tipsCash: 600,
+    });
   });
 });

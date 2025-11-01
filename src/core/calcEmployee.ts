@@ -1,5 +1,5 @@
 import { EmployeeCalcInput, EmployeeCalcResult } from './types';
-import { clamp01 } from '../state/number';
+import { clamp01, roundToDollars } from '../state/number';
 import { max0 } from './math';
 
 export function calculateEmployee({
@@ -32,5 +32,5 @@ export function calculateEmployee({
     tipsCash = cash;
   }
 
-  return { tipsCc, tipsCash };
+  return { tipsCc: roundToDollars(tipsCc), tipsCash: roundToDollars(tipsCash) };
 }
