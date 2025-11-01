@@ -104,4 +104,72 @@ describe('resolveDependencies', () => {
     expect(res.employees.size).toBe(0);
     expect(res.roles.size).toBe(0);
   });
+
+  it('period 未在修改栏，但 Server/Busser 的员工级修改只影响自己（不把 period 放入 affected）', () => {
+    const state = makeState({
+      employees: [
+        makeEmployee({
+          uid: '11',
+          roleName: 'Server',
+          byPeriod: {
+            [P1]: { hour: 10, cc: 0, cash: 0, percent: 10 },
+          },
+        }),
+        makeEmployee({
+          uid: '22',
+          roleName: 'Busser',
+          byPeriod: {
+            [P1]: { hour: 5, cc: 0, cash: 0, percent: 0 },
+          },
+        }),
+      ],
+    });
+
+    const resServer = resolveDependencies(state, [
+      { kind: 'employee', periodId: P1, uid: '11', roleName: 'Server', field: 'cc', value: 1 },
+    ]);
+    expect(resServer.periods.size).toBe(0);
+    expect(resServer.employees).toEqual(new Set([`${P1}:11:Server`]));
+    expect(resServer.roles).toEqual(new Set(['Server']));
+
+    const resBusser = resolveDependencies(state, [
+      { kind: 'employee', periodId: P1, uid: '22', roleName: 'Busser', field: 'cc', value: 1 },
+    ]);
+    expect(resBusser.periods.size).toBe(0);
+    expect(resBusser.employees).toEqual(new Set([`${P1}:22:Busser`]));
+    expect(resBusser.roles).toEqual(new Set(['Busser']));
+  });
+
+  it('period 未在修改栏，但 Host 的员工级修改会级联影响同列 Server/Busser（仅限有记录者），period 不加入 affected', () => {
+    const state = makeState({
+      employees: [
+        makeEmployee({
+          uid: '10',
+          roleName: 'Host',
+          byPeriod: { [P1]: { hour: 8, cc: 0, cash: 0, percent: 0 } },
+        }),
+        makeEmployee({
+          uid: '20',
+          roleName: 'Server',
+          byPeriod: { [P1]: { hour: 30, cc: 0, cash: 0, percent: 15 } },
+        }),
+        // 有记录的 Busser 会被带上
+        makeEmployee({
+          uid: '30',
+          roleName: 'Busser',
+          byPeriod: { [P1]: { hour: 6, cc: 0, cash: 0, percent: 0 } },
+        }),
+        // 没有记录的不加入
+        makeEmployee({ uid: '31', roleName: 'Busser' }),
+      ],
+    });
+
+    const res = resolveDependencies(state, [
+      { kind: 'employee', periodId: P1, uid: '10', roleName: 'Host', field: 'cc', value: 1 },
+    ]);
+
+    expect(res.periods.size).toBe(0);
+    expect(res.employees).toEqual(new Set([`${P1}:10:Host`, `${P1}:20:Server`, `${P1}:30:Busser`]));
+    expect(res.roles).toEqual(new Set(['Host', 'Server', 'Busser']));
+  });
 });

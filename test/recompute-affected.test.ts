@@ -101,4 +101,68 @@ describe('recomputeAffected', () => {
     // ccPoolAfterOthers = 1000 - hostTotalCcTips(=300) = 700 -> 10% = 70
     expect(state.employees[1].byPeriod[P1].cc).toBe(70);
   });
+
+  it('period 未入 affected，但能从 state 读取该 period 的池子并按候选员工 key 进行重算', () => {
+    const host = makeEmployee({
+      uid: '10',
+      roleName: 'Host',
+      byPeriod: { [P1]: makeCell({ cc: 200, cash: 0 }) }, // 先占用 200
+    });
+    const server = makeEmployee({
+      uid: '20',
+      roleName: 'Server',
+      byPeriod: { [P1]: makeCell({ cc: 0, cash: 0 }) },
+    });
+    const busserNoCell = makeEmployee({ uid: '30', roleName: 'Busser' }); // 没有 cell，不应被创建
+    const state = makeState({
+      periods: { [P1]: makePeriod({ ccTips: 1000, cashTips: 500, serviceCharge: 0 }) },
+      employees: [host, server, busserNoCell],
+    });
+
+    // 注意：这里 periods 传空集合，只有 employees 集合里带着 `${P1}:uid:role`
+    recomputeAffected(state, {
+      periods: new Set<string>(),
+      employees: new Set([`${P1}:20:Server`]), // ✅ 只给 Server
+      roles: new Set<string>(),
+    });
+
+    // 根据我们上面的 mock：cc=10%*(ccPoolAfterOthers)
+    // ccPoolAfterOthers = 1000 - host.cc(=200) = 800 => Server cc = 80
+    // cash=5%*(cashPoolAfterOthers)；Host.cash=0，所以 cashPoolAfterOthers=500 => Server cash=25
+    expect(state.employees[1].byPeriod[P1].cc).toBe(80);
+    expect(state.employees[1].byPeriod[P1].cash).toBe(25);
+    // 没有 cell 的 Busser 不应被创建
+    expect(state.employees[2].byPeriod[P1]).toBeUndefined();
+  });
+
+  it('period 未入 affected + Host 本次也在候选里：先写 Host，再按 afterOthers 重算 Server（顺序已保证）', () => {
+    const host = makeEmployee({
+      uid: '10',
+      roleName: 'Host',
+      byPeriod: { [P1]: makeCell({ cc: 0, cash: 0 }) }, // 初始 0，本轮会被写入
+    });
+    const server = makeEmployee({
+      uid: '20',
+      roleName: 'Server',
+      byPeriod: { [P1]: makeCell({ cc: 0, cash: 0 }) },
+    });
+    const state = makeState({
+      periods: { [P1]: makePeriod({ ccTips: 1000, cashTips: 0, serviceCharge: 0 }) },
+      employees: [host, server],
+    });
+
+    // 只传 employees（不含 periods）
+    recomputeAffected(state, {
+      periods: new Set<string>(),
+      employees: new Set([`${P1}:10:Host`, `${P1}:20:Server`]),
+      roles: new Set<string>(),
+    });
+
+    // 第一步：根据 mock，Host 从 pool 拿 10% => 100（cash 0）
+    expect(state.employees[0].byPeriod[P1].cc).toBe(100);
+
+    // 第二步：Server 再从「扣除 Host 后」的池子拿 10%
+    // 剩余 ccPoolAfterOthers = 1000 - 100 = 900 => 10% = 90
+    expect(state.employees[1].byPeriod[P1].cc).toBe(90);
+  });
 });

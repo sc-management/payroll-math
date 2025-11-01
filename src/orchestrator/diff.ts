@@ -1,13 +1,10 @@
 import { EmployeeField, PayrollDiff, PayrollState, PeriodField } from '../state/payroll-types';
+import { Affected } from './resolve';
 
 export function buildDiff(
   before: PayrollState,
   after: PayrollState,
-  affected: {
-    periods: Set<string>;
-    employees: Set<string>;
-    roles: Set<string>;
-  },
+  affected: Affected,
 ): PayrollDiff {
   if (!affected || before === after) {
     return { periods: [], employees: [], meta: {} };

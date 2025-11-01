@@ -21,9 +21,24 @@ function eq2(a1: number, a2: number, b1: number, b2: number) {
   return a1 === b1 && a2 === b2;
 }
 
+// 🔧 从员工 key 中抽取所有 periodId
+function inferPeriodsFromEmployeeKeys(employees: Set<string>): Set<string> {
+  const s = new Set<string>();
+  for (const key of employees) {
+    // 形如 `${pid}:${uid}:${roleName}`
+    const idx = key.indexOf(':');
+    if (idx > 0) s.add(key.slice(0, idx));
+  }
+  return s;
+}
+
 export function recomputeAffected(draft: PayrollState, affected: Affected): void {
+  // 🔧 关键：把 employees key 里出现的 pid 也纳入重算集合
+  const inferred = inferPeriodsFromEmployeeKeys(affected.employees);
+  const periodIds = new Set<string>([...affected.periods, ...inferred]);
+
   // 逐 period 处理
-  for (const pid of affected.periods) {
+  for (const pid of periodIds) {
     const period = draft.periods[pid];
     // period 可能被懒创建，或者仍不存在（例如只有员工级编辑）。不存在也不影响：服务端/客户端口径允许。
     const poolCash = period?.cashTips ?? 0;

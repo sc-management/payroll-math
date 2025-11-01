@@ -4,6 +4,7 @@ import {
   PayrollDiff,
   PayrollState,
   PeriodUpdate,
+  StateEmployeeCell,
 } from '../state/payroll-types';
 import { clamp01, sumCents } from '../state/number';
 import { Affected, resolveDependencies } from './resolve';
@@ -79,7 +80,7 @@ function recomputeMetaTotals(state: PayrollState) {
 }
 
 // ---- Shake Tree: prune cells that are meaningless after recompute ----
-function isZeroishCell(cell: any): boolean {
+function isZeroishCell(cell: StateEmployeeCell): boolean {
   if (!cell) return true;
   const hour = cell.hour ?? 0;
   const percent = cell.percent ?? 0;
@@ -91,14 +92,14 @@ function isZeroishCell(cell: any): boolean {
 function pruneAfterRecompute(before: PayrollState, after: PayrollState, affected: Affected) {
   // Build a quick lookup for "before" employees by uid+role
   const beforeIndex = new Map<string, any>();
-  for (const be of (before as any).employees ?? []) {
+  for (const be of before.employees ?? []) {
     const key = `${be.uid}:${be.roleName}`;
     beforeIndex.set(key, be);
   }
 
   for (const pid of affected.periods) {
     // Iterate all employees in "after"
-    for (const e of (after as any).employees ?? []) {
+    for (const e of after.employees ?? []) {
       const key = `${e.uid}:${e.roleName}`;
       // Narrowing: if affected.employees 非空，仅处理被点名的员工；否则处理受影响角色
       const named =
