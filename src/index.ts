@@ -3,7 +3,6 @@ export { calculatePeriodTotals } from './core/calcPeriod';
 export { calculateEmployee } from './core/calcEmployee';
 export { sumPayrollTotals } from './core/calcPayroll';
 export { computeWeeklyOvertimeByRole } from './core/overtime';
-export { computeSpreadOfHours } from './core/spread';
 export { applyMinimumPayAdjustment } from './core/minimumPay';
 
 export { applyChanges } from './orchestrator/applyChanges';

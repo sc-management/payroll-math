@@ -36,24 +36,6 @@ export type RoleWeeklyHours = {
   overtimeHours: number;
 };
 
-export interface SpreadInput {
-  records: ShiftRecord[];
-  minPayRate: number;
-  /**
-   * 是否仅在“已有 extraHours>0”时才生效。
-   * 你的 PHP 逻辑是：从外部源算出 extra_hours>0 才发 spread，
-   * 这里保留开关，默认 true（与现有一致）。
-   */
-  onlyIfExtraHoursPositive?: boolean;
-  extraHoursFromSource?: number; // 外部算好的 extra_hours（如 HomeBase）
-}
-
-export interface SpreadResult {
-  spreadHours: number; // 累计 1 小时/天
-  spreadPay: number; // spreadHours * minPayRate
-  perDate?: Array<{ date: string; hours: number; pay: number }>;
-}
-
 export interface MinPayAdjustInput {
   regularHours: number;
   overtimeHours: number;
