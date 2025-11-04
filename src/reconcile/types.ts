@@ -108,5 +108,6 @@ export type PayrollReconciledSummary = {
       serviceCharge?: 'CLOVER' | 'OTHER';
     };
     timeClockEventsByEmployee?: Record<string, ExternalTimeClockEvent[]>;
+    spreadRequired?: boolean; // 是否计算spread of hours
   };
 };

@@ -33,6 +33,7 @@ export function reconcilePayroll(
     timezone,
     locationId,
     currency,
+    spreadRequired,
   } = input;
 
   // ---------- 1) 读取 sheet ----------
@@ -311,6 +312,7 @@ export function reconcilePayroll(
       externalDailyEvents.filter((e) => !!e.roleName),
       (e) => e.employeeUid,
     ),
+    spreadRequired,
   };
 
   days.sort((a, b) => a.date.localeCompare(b.date));

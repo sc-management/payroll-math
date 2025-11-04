@@ -52,4 +52,5 @@ export type ReconcileInput = {
   timezone?: string;
   locationId?: string;
   currency?: string;
+  spreadRequired?: boolean;
 };
