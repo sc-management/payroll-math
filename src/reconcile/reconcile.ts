@@ -11,10 +11,11 @@ import {
 import { defaultSheetAdapter, SheetAdapter, SheetEmployeeDayRow } from './sheet-adapter';
 import { computeScore, groupBy, sumBy, varianceOfCents, varianceOfNumber } from './helpers';
 import { clamp2 } from '../state/number';
+import { OVERALL_ROLE_KEY } from '../summarize/type';
 
 type Opts = {
   adapter?: SheetAdapter;
-  includeRoleNames?: string[];
+  includeRoleIds?: string[];
 };
 
 export function reconcilePayroll(
@@ -24,17 +25,9 @@ export function reconcilePayroll(
 ): PayrollReconciledSummary {
   const rules = { ...defaultRules, ...config };
   const adapter = opts.adapter ?? defaultSheetAdapter;
-  const includeRoleNames = opts.includeRoleNames ?? ['Server', 'Busser', 'Bartender', 'Host'];
+  const includeRoleIds = opts.includeRoleIds ?? ['1', '2', '3', '4']; // 默认 FOH 角色 ID 列表
 
-  const {
-    payrollState,
-    externalDailyEvents,
-    externalDailyReceipts,
-    timezone,
-    locationId,
-    currency,
-    spreadRequired,
-  } = input;
+  const { payrollState, externalDailyEvents, externalDailyReceipts, timezone, currency } = input;
 
   // ---------- 1) 读取 sheet ----------
   const sheetDateList = adapter.listDates(payrollState);
@@ -196,8 +189,8 @@ export function reconcilePayroll(
       (d) => !!d.roleId && !!d.roleName && d.payRate && d.payType && d.position,
     ); // 仅保留可用的记录 (完整 role/payType/payRate)
 
-    const sheetEmpByRole = groupBy(sheetRow.segments ?? [], (s) => s.roleName);
-    const extEventsByRole = groupBy(validExtDailyEvents, (h) => h.roleName!);
+    const sheetEmpByRole = groupBy(sheetRow.segments ?? [], (s) => s.roleId);
+    const extEventsByRole = groupBy(validExtDailyEvents, (h) => h.roleId!);
     const allRoles = new Set<string>([
       ...Object.keys(sheetEmpByRole),
       ...Object.keys(extEventsByRole),
@@ -210,7 +203,7 @@ export function reconcilePayroll(
       }
     > = {};
     for (const role of allRoles) {
-      if (!includeRoleNames.includes(role)) continue; // 仅限 FOH 角色对账
+      if (!includeRoleIds.includes(role)) continue; // 仅限 FOH 角色对账
       const sheetHoursForRole = sumBy(sheetEmpByRole[role] ?? [], (s) => s.hours);
       const extHoursForRole = sumBy(extEventsByRole[role] ?? [], (h) => h.hours);
       const vRoleHours = varianceOfNumber(
@@ -236,6 +229,7 @@ export function reconcilePayroll(
       const segmentHours =
         sumBy(events, (s) => s.hours) || sumBy(sheetSegmentForRole, (s) => s.hours);
       segments.push({
+        roleId: firstExt?.roleId ?? firstSheet?.roleId ?? 'unknown',
         roleName: role,
         position: firstExt?.position ?? firstSheet?.position ?? 'FRONT_OF_HOUSE',
         payType: firstExt?.payType ?? firstSheet?.payType ?? 'HOURLY',
@@ -267,7 +261,7 @@ export function reconcilePayroll(
         cashTips: sumBy(sheetRow.segments || [], (s) => s.cashTips),
       },
       reconciliation: {
-        OVERALL: {
+        [OVERALL_ROLE_KEY]: {
           hours: overallVar,
         },
         ...reconciliationByRole,
@@ -305,14 +299,14 @@ export function reconcilePayroll(
     generatedAt: new Date().toISOString(),
     timezone,
     currency,
-    locationId,
+    locationId: payrollState.meta.locationId,
+    minimumWage: payrollState.meta.minPayRate,
     configHash: JSON.stringify({ rules }).slice(0, 120),
     provenance: { hours: 'HOMEBASE', ccTips: 'CLOVER', serviceCharge: 'CLOVER' },
-    timeClockEventsByEmployee: groupBy(
+    timeClockEventsByEmpKey: groupBy(
       externalDailyEvents.filter((e) => !!e.roleName),
-      (e) => e.employeeUid,
+      (e) => `${e.employeeUid}:::${e.displayName}`,
     ),
-    spreadRequired,
   };
 
   days.sort((a, b) => a.date.localeCompare(b.date));

@@ -67,7 +67,7 @@ export function fromStateToModel(s: PayrollState): PayrollModel {
       tips: totalCc,
       tipsCash: totalCash,
       bonus: 0,
-      minPayRate: s.meta.minPayRate,
+      minimumWage: s.meta.minPayRate,
     });
 
     bucket.employees.push({

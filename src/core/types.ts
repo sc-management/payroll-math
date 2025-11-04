@@ -39,16 +39,14 @@ export type RoleWeeklyHours = {
 export interface MinPayAdjustInput {
   regularHours: number;
   overtimeHours: number;
-  payAmount: number; // 当前总工资（小时工资 + 其它已计入工资的金额；不含 tipsCash 调整后的值）
-  tips: number;
-  tipsCash: number;
-  bonus: number;
-  minPayRate: number;
+  payAmount: number; // cents
+  tips: number; // cents
+  tipsCash: number; // cents
+  bonus: number; // cents
+  minimumWage: number; // cents per hour
 }
 
 export interface MinPayAdjustResult {
   tips: number;
   tipsCash: number;
-  payAmount: number;
-  minimumPay: number;
 }

@@ -19,13 +19,13 @@ export type ExternalTimeClockEvent = {
   employeeUid: string;
   displayName: string;
   hours: number;
-  roleId?: string; // 可能不存在
+  roleId?: string;
   roleName?: string;
   payRate?: MoneyCents;
   payType?: PayType;
   position?: Position;
 
-  clockIn?: string; // ISO(UTC) 原始 clockIn, 用来排序
+  clockIn: string; // ISO(UTC) 原始 clockIn, 用来排序
 
   // 质量与溯源（用于在 report/audit 里给出线索）
   provider?: ExternalProvider;
@@ -50,7 +50,5 @@ export type ReconcileInput = {
   externalDailyReceipts: ExternalDailyNetReceipts[];
 
   timezone?: string;
-  locationId?: string;
   currency?: string;
-  spreadRequired?: boolean;
 };

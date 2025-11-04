@@ -18,6 +18,7 @@ export type Variance<T extends number> = {
 };
 
 export type SheetRoleSlice = {
+  roleId: string;
   roleName: string;
   position: Position;
   payRate: MoneyCents;
@@ -97,7 +98,8 @@ export type PayrollReconciledSummary = {
     generatedAt: string; // ISO8601
     timezone?: string; // 门店时区（用来解释日级归属）
     currency?: string; // e.g. 'USD'
-    locationId?: string; // 多门店场景常用
+    locationId: string; // 多门店场景常用
+    minimumWage: MoneyCents;
 
     configHash?: string; // 用于变更检测
     sourceHashes?: { payrollState?: string; externalTimeClocks?: string; externalTips?: string };
@@ -107,7 +109,6 @@ export type PayrollReconciledSummary = {
       ccTips?: 'CLOVER' | 'OTHER';
       serviceCharge?: 'CLOVER' | 'OTHER';
     };
-    timeClockEventsByEmployee?: Record<string, ExternalTimeClockEvent[]>;
-    spreadRequired?: boolean; // 是否计算spread of hours
+    timeClockEventsByEmpKey?: Record<string, ExternalTimeClockEvent[]>;
   };
 };

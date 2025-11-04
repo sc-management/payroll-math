@@ -19,3 +19,6 @@ export { makeCurrentSheetAdapterDate } from './reconcile/adapters/current-sheet-
 export * from './reconcile/types';
 export * from './reconcile/input-types';
 export * from './reconcile/sheet-adapter';
+
+export { summarizeWeekly } from './summarize/summarizeWeekly';
+export * from './summarize/type';

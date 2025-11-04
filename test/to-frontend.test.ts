@@ -44,7 +44,7 @@ describe('fromStateToModel (Vitest)', () => {
           roleName: 'Server',
           name: 'Alice',
           payRate: 20,
-          payType: 1,
+          payType: 'HOURLY',
           byPeriod: { [P1]: { hour: 10, cc: 100, cash: 50, percent: 0.1 } },
         }),
         makeEmployee({
@@ -53,7 +53,7 @@ describe('fromStateToModel (Vitest)', () => {
           roleName: 'Server',
           name: 'Bob',
           payRate: 25,
-          payType: 1,
+          payType: 'HOURLY',
           byPeriod: { [P1]: { hour: 5, cc: 50, cash: 25, percent: 0.05 } },
         }),
       ],
@@ -131,7 +131,7 @@ describe('fromStateToModel (Vitest)', () => {
         tips: 100,
         tipsCash: 50,
         bonus: 0,
-        minPayRate: 15,
+        minimumWage: 15,
       }),
     );
 
@@ -161,7 +161,7 @@ describe('fromStateToModel (Vitest)', () => {
         roleName: 'Runner',
         name: 'Carol',
         payRate: 20,
-        payType: 1,
+        payType: 'HOURLY',
         byPeriod: {
           '1': { hour: 45, cc: 100, cash: 0, percent: 0.2 },
         },

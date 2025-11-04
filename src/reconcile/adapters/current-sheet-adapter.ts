@@ -147,18 +147,16 @@ export function makeCurrentSheetAdapterDate(
           seg.cashTips += addCash;
         } else {
           row.segments.push({
+            roleId: emp.roleId,
             roleName: emp.roleName,
             payRate: emp.payRate,
             payType: emp.payType,
             position: 'FRONT_OF_HOUSE' as Position, // 默认 FOH
-            regularHours: addHours, // 目前无 OT 拆分
-            overtimeHours: 0,
-            overtimeMultiplier: undefined,
 
             hours: addHours, // regular + overtime
             ccTips: addCc,
             cashTips: addCash,
-          } as any);
+          });
         }
       };
 

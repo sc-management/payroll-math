@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { makeState, makeEmployee, makePeriod, P1 } from './helpers/factories';
-import { ReconciledDay } from '../src/reconcile/types';
-import { SheetAdapter, SheetEmployeeDayRow } from '../src/reconcile/sheet-adapter';
-import { ReconcileInput } from '../src/reconcile/input-types';
-import { reconcilePayroll } from '../src/reconcile/reconcile';
+import { ReconciledDay } from '../src';
+import { SheetAdapter, SheetEmployeeDayRow } from '../src';
+import { ReconcileInput } from '../src';
+import { reconcilePayroll } from '../src';
+import { OVERALL_ROLE_KEY } from '../src/summarize/type';
 
 // =======================================================
 // Helper：构建最小 SheetAdapter
@@ -51,6 +52,7 @@ describe('reconcilePayroll - day-level', () => {
           payRate: 1500,
           payType: 'HOURLY',
           position: 'FRONT_OF_HOUSE',
+          clockIn: '2025-11-01T12:00:00Z',
         },
         {
           date: '2025-11-03', // sheet 没有
@@ -62,6 +64,7 @@ describe('reconcilePayroll - day-level', () => {
           payRate: 1200,
           payType: 'HOURLY',
           position: 'FRONT_OF_HOUSE',
+          clockIn: '2025-11-03T12:00:00Z',
         },
       ],
       externalDailyReceipts: [
@@ -96,6 +99,7 @@ describe('reconcilePayroll - employee x day', () => {
           displayName: 'Alice',
           segments: [
             {
+              roleId: '1',
               roleName: 'Server',
               position: 'FRONT_OF_HOUSE',
               payType: 'HOURLY',
@@ -105,6 +109,7 @@ describe('reconcilePayroll - employee x day', () => {
               cashTips: 1000,
             },
             {
+              roleId: '2',
               roleName: 'Busser',
               position: 'FRONT_OF_HOUSE',
               payType: 'HOURLY',
@@ -133,22 +138,24 @@ describe('reconcilePayroll - employee x day', () => {
           employeeUid: '1',
           displayName: 'Alice',
           hours: 5.25,
-          roleId: 'r1',
+          roleId: '1',
           roleName: 'Server',
           payRate: 1500,
           payType: 'HOURLY',
           position: 'FRONT_OF_HOUSE',
+          clockIn: '2025-11-01T12:00:00Z',
         },
         {
           date: '2025-11-01',
           employeeUid: '1',
           displayName: 'Alice',
           hours: 2.75,
-          roleId: 'r2',
+          roleId: '2',
           roleName: 'Busser',
           payRate: 1200,
           payType: 'HOURLY',
           position: 'FRONT_OF_HOUSE',
+          clockIn: '2025-11-01T15:00:00Z',
         },
         // 无效记录（缺role）——不计入
         {
@@ -162,6 +169,7 @@ describe('reconcilePayroll - employee x day', () => {
           position: 'FRONT_OF_HOUSE',
           hasAnomaly: true,
           anomalies: [{ type: 'MISSING_ROLE' }],
+          clockIn: '2025-11-01T18:00:00Z',
         },
       ],
       externalDailyReceipts: [],
@@ -171,10 +179,10 @@ describe('reconcilePayroll - employee x day', () => {
 
     const rec = out.employees.find((e) => e.employeeUid === '1')!;
     expect(rec.totals.hours).toBeCloseTo(8.0, 2);
-    expect(rec.reconciliation.OVERALL.hours.delta).toBeCloseTo(0, 6);
+    expect(rec.reconciliation[OVERALL_ROLE_KEY].hours.delta).toBeCloseTo(0, 6);
 
-    expect(rec.reconciliation.Server.hours.delta).toBeCloseTo(6 - 5.25, 6);
-    expect(rec.reconciliation.Busser.hours.delta).toBeCloseTo(2 - 2.75, 6);
+    expect(rec.reconciliation['1'].hours.delta).toBeCloseTo(6 - 5.25, 6);
+    expect(rec.reconciliation['2'].hours.delta).toBeCloseTo(2 - 2.75, 6);
 
     expect(rec.totals.ccTips).toBe(3500);
     expect(rec.totals.cashTips).toBe(1200);
@@ -195,6 +203,7 @@ describe('reconcilePayroll - includeRoleNames', () => {
           displayName: 'Alice',
           segments: [
             {
+              roleId: '4',
               roleName: 'Host',
               position: 'FRONT_OF_HOUSE',
               payRate: 1000,
@@ -204,6 +213,7 @@ describe('reconcilePayroll - includeRoleNames', () => {
               cashTips: 0,
             },
             {
+              roleId: '1',
               roleName: 'Server',
               position: 'FRONT_OF_HOUSE',
               payRate: 1500,
@@ -232,6 +242,7 @@ describe('reconcilePayroll - includeRoleNames', () => {
           payRate: 1000,
           payType: 'HOURLY',
           position: 'FRONT_OF_HOUSE',
+          clockIn: '2025-11-01T12:00:00Z',
         },
         {
           date: '2025-11-01',
@@ -243,16 +254,17 @@ describe('reconcilePayroll - includeRoleNames', () => {
           payRate: 1500,
           payType: 'HOURLY',
           position: 'FRONT_OF_HOUSE',
+          clockIn: '2025-11-01T15:00:00Z',
         },
       ],
       externalDailyReceipts: [],
     };
 
-    const out = reconcilePayroll(input, {}, { adapter, includeRoleNames: ['Server'] });
+    const out = reconcilePayroll(input, {}, { adapter, includeRoleIds: ['1'] });
 
     const rec = out.employees[0];
-    expect(rec.reconciliation.Server).toBeDefined();
-    expect(rec.reconciliation.Host).toBeUndefined();
+    expect(rec.reconciliation['1']).toBeDefined();
+    expect(rec.reconciliation['4']).toBeUndefined();
     expect(rec.totals.hours).toBeCloseTo(6);
   });
 });
@@ -285,17 +297,19 @@ describe('reconcilePayroll - meta & sort', () => {
           payRate: 1500,
           payType: 'HOURLY',
           position: 'FRONT_OF_HOUSE',
+          clockIn: '2025-11-02T12:00:00Z',
         },
         {
           date: '2025-11-01',
           employeeUid: 'u1',
-          displayName: 'A',
+          displayName: 'A C',
           hours: 1,
           roleId: 'r1',
           roleName: 'Server',
           payRate: 1500,
           payType: 'HOURLY',
           position: 'FRONT_OF_HOUSE',
+          clockIn: '2025-11-01T12:00:00Z',
         },
       ],
       externalDailyReceipts: [],
@@ -307,7 +321,7 @@ describe('reconcilePayroll - meta & sort', () => {
       '2025-11-01::u1',
       '2025-11-02::u2',
     ]);
-    expect(out.meta?.timeClockEventsByEmployee).toBeDefined();
-    expect(Object.keys(out.meta.timeClockEventsByEmployee!)).toContain('u1');
+    expect(out.meta?.timeClockEventsByEmpKey).toBeDefined();
+    expect(Object.keys(out.meta.timeClockEventsByEmpKey!)).toContain('u1:::A C');
   });
 });
