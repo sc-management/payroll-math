@@ -31,7 +31,7 @@ export function makeEmployee(partial?: Partial<StateEmployee>): StateEmployee {
     roleName: partial?.roleName ?? 'Server',
     name: partial?.name ?? 'Alice',
     payRate: partial?.payRate ?? 1500,
-    payType: partial?.payType ?? 1,
+    payType: partial?.payType ?? 'HOURLY',
     byPeriod: partial?.byPeriod ?? {},
   };
 }

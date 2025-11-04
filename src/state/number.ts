@@ -5,6 +5,7 @@ export const num = (v: any) => (Number.isFinite(Number(v)) ? Number(v) : 0);
 export const empKey = (uid: string | number, periodId: string | number, roleName: string) =>
   `${periodId}:${uid}:${roleName}`;
 export const clamp01 = (x: number): Ratio => Math.max(0, Math.min(1, x));
+export const clamp2 = (n: number) => Math.round(n * 100) / 100;
 export const roundToDollars = (cents: MoneyCents): MoneyCents => Math.round(cents / 100) * 100;
 
 export function floatToCents(n: number | string): MoneyCents {

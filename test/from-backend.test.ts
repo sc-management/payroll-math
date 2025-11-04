@@ -294,7 +294,7 @@ describe('fromCanonicalToState', () => {
       roleName: 'Server',
       name: 'Alice A', // 来自 payRates 预埋
       payRate: 2050, // 20.5 → 2050
-      payType: 1,
+      payType: 'HOURLY',
     });
 
     const emp102 = all.find((e) => e.uid === '102')!;
@@ -303,7 +303,7 @@ describe('fromCanonicalToState', () => {
       roleName: 'Busser',
       name: 'Bob B', // payRates 预埋名字
       payRate: 1600, // payRates 覆盖 16 → 1600
-      payType: 1,
+      payType: 'HOURLY',
     });
 
     // byPeriod 单元格：金额转 cents、百分比 clamp

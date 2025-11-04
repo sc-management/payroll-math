@@ -1,7 +1,7 @@
 import { MoneyCents, Ratio } from './number';
 
-export type Position = 1 | 2 | -1; // 1 FOH, 2 BOH, -1 Spread等虚拟
-export type PayType = 1 | 2; // 1 hourly, 2 salary
+export type Position = 'FRONT_OF_HOUSE' | 'BACK_OF_HOUSE' | 'SPREAD_OF_HOURS'; // 1 FOH, 2 BOH, -1 Spread等虚拟
+export type PayType = 'HOURLY' | 'SALARY';
 export type LogType = 1 | 2 | 3 | 4 | 5; // 1是payroll,2是period,3是employee, 4，5预定为新的period/employee变更日志
 export type PeriodField = 'sales' | 'cashTips' | 'ccTips' | 'serviceCharge' | 'busserPercent';
 export type EmployeeField = 'hour' | 'percent' | 'cc' | 'cash';

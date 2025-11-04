@@ -1,58 +1,47 @@
-import { ShiftRecord, WeeklyHoursPay } from './types';
+import { RoleWeeklyHours, ShiftRecord } from './types';
+import { clamp2 } from '../state/number';
 
-export function computeWeeklyOvertime(records: ShiftRecord[]): WeeklyHoursPay {
-  // 先按日期排序，保证 overtime 切分顺序一致
-  const recs = [...records].sort((a, b) => a.date.localeCompare(b.date));
+/**
+ * 将一周内的所有打卡记录，按进入顺序依次分配到 regular / overtime。
+ * - 先到 40 小时为 regular（跨记录切分）
+ * - 超过 40 的部分记为 overtime
+ * - 按 roleName 维度各自累计
+ *
+ * @param records 本周所有 ShiftRecord
+ * @param weeklyCap 触发加班的阈值（默认 40h）
+ */
+export function computeWeeklyOvertimeByRole(
+  records: ShiftRecord[],
+  weeklyCap = 40,
+): Record<string, RoleWeeklyHours> {
+  // 复制并按 clockIn 排序（ISO 字符串可直接比较）
+  const recs = [...records].sort((a, b) => a.clockIn.localeCompare(b.clockIn));
 
-  let regularHours = 0;
-  let overtimeHours = 0;
-  let fohOvertimeHours = 0;
-  let bohOvertimeHours = 0;
-  let fohHours = 0;
-  let bohHours = 0;
-  let hourPay = 0;
+  const result: Record<string, RoleWeeklyHours> = {};
+  let accumulated = 0; // 本周累计小时（跨 role）
 
   for (const r of recs) {
-    if (r.payType === 2) {
-      // salary：小时全部记 regular，本记录的小时工资视为“周薪一次性计入”
-      regularHours += r.hour;
-      hourPay += r.payRate;
-      if (r.position === 1) fohHours += r.hour;
-      else if (r.position === 2) bohHours += r.hour;
-      continue;
+    const hours = Math.max(0, r.hour || 0); // 保护：负数当 0
+    const remainingRegular = Math.max(0, weeklyCap - accumulated);
+
+    const toRegular = Math.min(remainingRegular, hours);
+    const toOvertime = hours - toRegular;
+
+    if (!result[r.roleName]) {
+      result[r.roleName] = { regularHours: 0, overtimeHours: 0 };
     }
 
-    // 时薪：先塞到 regular，超过 40 的部分算 overtime
-    const remainingRegularCap = Math.max(0, 40 - regularHours);
-    const toRegular = Math.min(remainingRegularCap, r.hour);
-    const toOvertime = r.hour - toRegular;
+    result[r.roleName].regularHours += toRegular;
+    result[r.roleName].overtimeHours += toOvertime;
 
-    regularHours += toRegular;
-    overtimeHours += toOvertime;
-
-    // 工资：regular * rate + overtime * 1.5 * rate
-    hourPay += toRegular * r.payRate + toOvertime * 1.5 * r.payRate;
-
-    // FOH/BOH 累计
-    if (r.position === 1) {
-      fohHours += r.hour;
-      fohOvertimeHours += toOvertime;
-    } else if (r.position === 2) {
-      bohHours += r.hour;
-      bohOvertimeHours += toOvertime;
-    }
+    accumulated += hours;
   }
 
-  // 保留两位
-  const round2 = (n: number) => Math.round(n * 100) / 100;
+  // 统一保留两位小数
+  for (const role of Object.keys(result)) {
+    result[role].regularHours = clamp2(result[role].regularHours);
+    result[role].overtimeHours = clamp2(result[role].overtimeHours);
+  }
 
-  return {
-    regularHours: round2(regularHours),
-    overtimeHours: round2(overtimeHours),
-    fohOvertimeHours: round2(fohOvertimeHours),
-    bohOvertimeHours: round2(bohOvertimeHours),
-    fohHours: round2(fohHours),
-    bohHours: round2(bohHours),
-    hourPay: round2(hourPay),
-  };
+  return result;
 }

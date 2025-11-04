@@ -1,6 +1,6 @@
 import { PayRateRecord, PayrollSnapshot } from '../types/backend';
 import { RawPayRateRecord, RawPayrollWithFull } from '../types/backend-raw';
-import { LogType, PayrollState, PayType, StateEmployee, StateLogEntry } from './payroll-types';
+import { LogType, PayrollState, StateEmployee, StateLogEntry } from './payroll-types';
 import { clamp01, floatToCents, num } from './number';
 
 const ROLE_LABEL: Record<'1' | '2' | '3' | '4', 'Server' | 'Busser' | 'Bartender' | 'Host'> = {
@@ -19,7 +19,7 @@ function getEmployeeMeta(uid: string, payRates: PayRateRecord[]) {
   return {
     name,
     payRate: num(pr?.payRate),
-    payType: (pr?.payType as PayType) ?? 1,
+    payType: pr?.payType === 2 ? ('SALARY' as const) : ('HOURLY' as const),
   };
 }
 
@@ -153,7 +153,7 @@ export function fromCanonicalToState(snap: PayrollSnapshot, rates: PayRateRecord
         roleName,
         name,
         payRate: floatToCents(pr.payRate),
-        payType: (pr.payType as 1 | 2) ?? 1,
+        payType: pr.payType === 2 ? 'SALARY' : 'HOURLY',
         byPeriod: {},
       });
     }

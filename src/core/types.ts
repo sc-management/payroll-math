@@ -1,5 +1,3 @@
-import { PayType, Position } from '../state/payroll-types';
-
 export interface PeriodCalcInput {
   sales: number;
   ccTips: number;
@@ -28,22 +26,15 @@ export interface EmployeeCalcResult {
 }
 
 export interface ShiftRecord {
-  date: string; // "YYYY-MM-DD"
+  clockIn: string; // ISO 8601
+  roleName: string;
   hour: number; // 实际工时
-  payRate: number; // 该记录对应时薪或周薪
-  payType: PayType; // 1时薪 2周薪
-  position: Position; // 1=FOH, 2=BOH
 }
 
-export interface WeeklyHoursPay {
+export type RoleWeeklyHours = {
   regularHours: number;
   overtimeHours: number;
-  fohOvertimeHours: number;
-  bohOvertimeHours: number;
-  fohHours: number;
-  bohHours: number;
-  hourPay: number; // 仅小时工资（不含小费/奖金）
-}
+};
 
 export interface SpreadInput {
   records: ShiftRecord[];
