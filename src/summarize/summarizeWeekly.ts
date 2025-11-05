@@ -1,9 +1,4 @@
-import {
-  EmployeeDayReconciliation,
-  PayrollReconciledSummary,
-  Variance,
-  VarianceStatus,
-} from '../reconcile/types';
+import { EmployeeDayReconciliation, PayrollReconciledSummary, Variance } from '../reconcile/types';
 import { OVERALL_ROLE_KEY, WeeklyEmployeeSummary, WeeklySummary } from './type';
 import { MoneyCents } from '../state/number';
 import { addVariance } from './helpers';
@@ -11,7 +6,6 @@ import { ShiftRecord } from '../core/types';
 import { computeWeeklyOvertimeByRole } from '../core/overtime';
 import { applyMinimumPayAdjustment } from '../core/minimumPay';
 import { round2 } from '../core/math';
-import { computeScore } from '../reconcile/helpers';
 
 type BuildOpts = {
   weekOvertimeThreshold?: number; // 每周多少小时开始算 OT
