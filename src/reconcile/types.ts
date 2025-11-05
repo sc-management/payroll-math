@@ -54,9 +54,6 @@ export type ReconciledDay = {
   date: string; // YYYY-MM-DD（门店时区）
 
   totals: {
-    /** sheet 当日总工时（reg+OT） */
-    hours: number;
-
     /** sheet 当日的“直传”金额（用于 UI 展示；对账只发生在下面两项） */
     cashTips: MoneyCents;
 
@@ -65,10 +62,6 @@ export type ReconciledDay = {
     serviceCharge: MoneyCents;
   };
   reconciliation: {
-    // ✅ 期级工时总览（把员工小时汇总后再对一遍）
-    hours: Variance<number>;
-
-    // ✅ 金额对账只做 ccTips / serviceCharge（来自 Clover）
     ccTips: Variance<MoneyCents>;
     serviceCharge: Variance<MoneyCents>;
   };

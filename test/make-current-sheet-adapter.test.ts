@@ -130,22 +130,10 @@ describe('makeCurrentSheetAdapterDate（稳态行为）', () => {
       }
       return { cc, cash, svc };
     };
-    const sumHoursFor = (date: string) => {
-      let h = 0;
-      for (const emp of state.employees ?? []) {
-        for (const [pid, cell] of Object.entries((emp as any).byPeriod ?? {})) {
-          if (defaultPeriodToDate(pid, state.meta) === date) {
-            h += (cell as any).hour ?? 0;
-          }
-        }
-      }
-      return h;
-    };
 
     const t1 = adapter.getDayTotals(state, day1);
     const P1 = sumPeriodsFor(day1);
     expect(t1).toEqual({
-      hours: sumHoursFor(day1),
       ccTips: P1.cc,
       cashTips: P1.cash,
       serviceCharge: P1.svc,
@@ -154,7 +142,6 @@ describe('makeCurrentSheetAdapterDate（稳态行为）', () => {
     const t2 = adapter.getDayTotals(state, day2);
     const P2 = sumPeriodsFor(day2);
     expect(t2).toEqual({
-      hours: sumHoursFor(day2),
       ccTips: P2.cc,
       cashTips: P2.cash,
       serviceCharge: P2.svc,
@@ -264,14 +251,12 @@ describe('makeCurrentSheetAdapterDate（稳态行为）', () => {
     const day1 = custom('2', state.meta); // 偶数
 
     expect(a2.getDayTotals(state, day0)).toEqual({
-      hours: 2, // pid=3
       ccTips: 100 as MC, // pid=1
       cashTips: 0 as MC,
       serviceCharge: 0 as MC,
     });
 
     expect(a2.getDayTotals(state, day1)).toEqual({
-      hours: 5, // pid=4
       ccTips: 200 as MC, // pid=2
       cashTips: 0 as MC,
       serviceCharge: 0 as MC,

@@ -88,19 +88,7 @@ export function makeCurrentSheetAdapterDate(
         }
       }
 
-      // 3) hours：从 employees[].byPeriod[pid].hour 聚合
-      let hours = 0;
-      for (const emp of state.employees ?? []) {
-        const cells = emp.byPeriod ?? {};
-        for (const [pid, cell] of Object.entries(cells)) {
-          if (periodIdToDate(pid, state.meta) === date) {
-            hours += cell.hour ?? 0;
-          }
-        }
-      }
-
       return {
-        hours,
         ccTips,
         serviceCharge,
         cashTips,

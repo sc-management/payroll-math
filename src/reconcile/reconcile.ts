@@ -35,7 +35,6 @@ export function reconcilePayroll(
   for (const d of sheetDateList) {
     const t = adapter.getDayTotals(payrollState, d);
     sheetDayTotals.set(d, {
-      hours: t.hours,
       ccTips: t.ccTips,
       serviceCharge: t.serviceCharge,
       cashTips: t.cashTips,
@@ -66,7 +65,6 @@ export function reconcilePayroll(
     const sheet = sheetDayTotals.get(date) ?? zeroDayTotals();
     const hasSheet = sheetDayTotals.has(date);
 
-    const extHours = clamp2(sumBy(hoursByDate[date] ?? [], (h) => h.hours));
     const extTips = sumBy(receiptsByDate[date] ?? [], (r) => r.ccTips);
     const extSvc = sumBy(receiptsByDate[date] ?? [], (r) => r.serviceCharge);
 
@@ -92,13 +90,6 @@ export function reconcilePayroll(
     }
 
     // Variances
-    const vHours = varianceOfNumber(
-      sheet.hours,
-      extHours,
-      { absTol: rules.hoursToleranceAbs, pctTol: rules.hoursTolerancePct },
-      'EXTERNAL',
-    );
-
     const vCcTips = varianceOfCents(
       sheet.ccTips,
       extTips,
@@ -133,7 +124,6 @@ export function reconcilePayroll(
       date,
       totals: sheet,
       reconciliation: {
-        hours: vHours,
         ccTips: vCcTips,
         serviceCharge: vSvc,
       },
@@ -280,11 +270,7 @@ export function reconcilePayroll(
   );
 
   const allStatuses = [
-    ...days.flatMap((p) => [
-      p.reconciliation.hours.status,
-      p.reconciliation.ccTips.status,
-      p.reconciliation.serviceCharge.status,
-    ]),
+    ...days.flatMap((p) => [p.reconciliation.ccTips.status, p.reconciliation.serviceCharge.status]),
     ...employees.flatMap((e) => Object.values(e.reconciliation).map((r) => r.hours.status)),
     metaReconciliation.status,
   ];
@@ -325,7 +311,7 @@ export function reconcilePayroll(
 
 // 小工具：零总计/零员工行
 function zeroDayTotals(): ReconciledDay['totals'] {
-  return { hours: 0, ccTips: 0, serviceCharge: 0, cashTips: 0 };
+  return { ccTips: 0, serviceCharge: 0, cashTips: 0 };
 }
 
 function zeroEmployeeDay(date: string, employeeUid: string): SheetEmployeeDayRow {

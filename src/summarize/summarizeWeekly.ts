@@ -29,7 +29,6 @@ export function summarizeWeekly(
 
   const weeklyTotals = days.reduce(
     (acc, day) => {
-      acc.hours += day.totals.hours;
       acc.ccTips += day.totals.ccTips;
       acc.cashTips += day.totals.cashTips;
       acc.serviceCharge += day.totals.serviceCharge;
