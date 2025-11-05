@@ -2,6 +2,7 @@ import { SheetAdapter, SheetEmployeeDayRow, SheetDayTotals } from '../sheet-adap
 import { PayrollState, Position, StateEmployee } from '../../state/payroll-types';
 import { addDays, formatISO, isValid, parseISO } from 'date-fns';
 import { MoneyCents } from '../../state/number';
+import { formatInTimeZone } from 'date-fns-tz';
 
 /** periodId -> YYYY-MM-DD 的解析函数 */
 export type PeriodToDateResolver = (periodId: string, meta: PayrollState['meta']) => string;
@@ -21,7 +22,7 @@ export const defaultPeriodToDate: PeriodToDateResolver = (periodId, meta) => {
   }
   const d = addDays(base, Math.floor((n - 1) / 2)); // 每两 periodId 增加一天
   // 输出“YYYY-MM-DD”（不带时间）
-  return formatISO(d, { representation: 'date' });
+  return formatInTimeZone(d, 'UTC', 'yyyy-MM-dd');
 };
 
 export type CurrentSheetAdapterDateOptions = {
