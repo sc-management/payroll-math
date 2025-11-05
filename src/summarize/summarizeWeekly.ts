@@ -132,7 +132,7 @@ export function summarizeWeekly(
     }
   }
   for (const emp of mapByEmp.values()) {
-    let overall: Variance<number> | undefined;
+    let overall: Variance<number> | undefined = undefined;
     for (const v of Object.values(emp.reconciliation.roles)) {
       overall = addVariance(overall, v);
     }
@@ -146,6 +146,7 @@ export function summarizeWeekly(
 
   for (const [k, emp] of mapByEmp) {
     const slices = reconciled.meta.timeClockEventsByEmpKey[k];
+    if (!slices || slices.length === 0) continue; // 无打卡记录，跳过
     const hourLines: ShiftRecord[] = slices
       .filter((s) => s.payType === 'HOURLY')
       .sort((a, b) => a.clockIn.localeCompare(b.clockIn))
