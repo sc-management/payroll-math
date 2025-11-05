@@ -260,16 +260,8 @@ export function summarizeWeekly(
 
   const blocking = issueCountByLevel.ERROR > 0;
 
-  // 计算健康评分（可选）
-  const totalIssues = issueCountByLevel.INFO + issueCountByLevel.WARNING + issueCountByLevel.ERROR;
-  let score = 100;
-  if (totalIssues > 0) {
-    // 按等级加权扣分：WARNING −2，每个 ERROR −10，最低 0
-    score = Math.max(0, 100 - issueCountByLevel.WARNING * 2 - issueCountByLevel.ERROR * 10);
-  }
-
   const report: WeeklySummary['report'] = {
-    score,
+    score: reconciled.report?.score ?? 100,
     issues: reconciled.report?.issues ?? [],
     issueCountByLevel,
     blocking,

@@ -1,4 +1,4 @@
-import { Variance, VarianceStatus } from './types';
+import { ReconciliationIssue, Variance, VarianceStatus } from './types';
 import { clamp01, clamp2, MoneyCents } from '../state/number';
 
 const EPS = 1e-9;
@@ -76,10 +76,10 @@ export function groupBy<T>(arr: T[], key: (x: T) => string): Record<string, T[]>
 }
 
 // ---------- 评分（可简化/替换） ----------
-export function computeScore(statuses: VarianceStatus[]): number {
-  if (!statuses.length) return 100;
+export function computeScore(levels: Array<ReconciliationIssue['level']>): number {
+  if (!levels.length) return 100;
   let score = 100;
-  for (const s of statuses) {
+  for (const s of levels) {
     if (s === 'WARNING') score -= 5;
     else if (s === 'ERROR') score -= 20;
   }

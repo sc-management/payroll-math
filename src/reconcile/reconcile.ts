@@ -96,6 +96,15 @@ export function reconcilePayroll(
       { absTolCents: rules.tipsToleranceAbsCents, pctTol: rules.tipsTolerancePct },
       'EXTERNAL',
     );
+    if (vCcTips.status !== 'OK') {
+      issues.push({
+        level: vCcTips.status,
+        code: 'TIPS_MISMATCH',
+        message: `Tips mismatch on ${date}: sheet=${sheet.ccTips}c, external=${extTips}c`,
+        date,
+        meta: { sheetCcTips: sheet.ccTips, externalCcTips: extTips },
+      });
+    }
 
     const vSvc = varianceOfCents(
       sheet.serviceCharge,
@@ -106,6 +115,15 @@ export function reconcilePayroll(
       },
       'EXTERNAL',
     );
+    if (vSvc.status !== 'OK') {
+      issues.push({
+        level: vSvc.status,
+        code: 'SERVICE_CHARGE_MISMATCH',
+        message: `Service charge mismatch on ${date}: sheet=${sheet.serviceCharge}c, external=${extSvc}c`,
+        date,
+        meta: { sheetServiceCharge: sheet.serviceCharge, externalServiceCharge: extSvc },
+      });
+    }
 
     // Clover 负值告警
     for (const r of receiptsByDate[date] ?? []) {
@@ -201,6 +219,21 @@ export function reconcilePayroll(
         { absTol: rules.hoursToleranceAbs, pctTol: rules.hoursTolerancePct },
         'EXTERNAL',
       );
+      if (vRoleHours.status !== 'OK') {
+        issues.push({
+          level: vRoleHours.status,
+          code: 'HOURS_MISMATCH_BY_ROLE',
+          message: `Hours mismatch for ${sheetRow.displayName} on ${date} for role ${role}: sheet=${sheetHoursForRole}, external=${extHoursForRole}`,
+          date,
+          employeeUid,
+          displayName: sheetRow.displayName,
+          meta: {
+            roleId: role,
+            sheetHours: sheetHoursForRole,
+            externalHours: extHoursForRole,
+          },
+        });
+      }
       reconciliationByRole[role] = {
         hours: vRoleHours,
       };
@@ -267,13 +300,19 @@ export function reconcilePayroll(
     { absTolCents: rules.tipsToleranceAbsCents, pctTol: rules.tipsTolerancePct },
     'SHEET',
   );
+  if (metaReconciliation.status !== 'OK') {
+    issues.push({
+      level: metaReconciliation.status,
+      code: 'META_TIPS_MISMATCH',
+      message: `Meta tips mismatch: sheet=${sheetTotalCcTips}c, employees=${employeeTotalCcTips}c`,
+      meta: {
+        sheetTotalCcTips,
+        employeeTotalCcTips,
+      },
+    });
+  }
 
-  const allStatuses = [
-    ...days.flatMap((p) => [p.reconciliation.ccTips.status, p.reconciliation.serviceCharge.status]),
-    ...employees.flatMap((e) => Object.values(e.reconciliation).map((r) => r.hours.status)),
-    metaReconciliation.status,
-  ];
-  const score = computeScore(allStatuses);
+  const score = computeScore(issues.map((i) => i.level));
   const report = {
     issues,
     score,
