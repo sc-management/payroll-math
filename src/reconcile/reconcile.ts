@@ -136,11 +136,10 @@ export function reconcilePayroll(
   for (const key of allEmpKeys) {
     const [date, employeeUid] = key.split('::');
     const inSheet = sheetEmpKeys.has(key);
+    const extDailyEvents = eventsByEmpDate[key] ?? [];
     const sheetRow = inSheet
       ? sheetEmpDayRows.find((r) => r.date === date && r.employeeUid === employeeUid)!
-      : zeroEmployeeDay(date, employeeUid);
-
-    const extDailyEvents = eventsByEmpDate[key] ?? [];
+      : zeroEmployeeDay(date, employeeUid, extDailyEvents[0]?.displayName || employeeUid);
 
     // 数据质量 issue
     for (const d of extDailyEvents) {
@@ -220,7 +219,7 @@ export function reconcilePayroll(
         sumBy(events, (s) => s.hours) || sumBy(sheetSegmentForRole, (s) => s.hours);
       segments.push({
         roleId: firstExt?.roleId ?? firstSheet?.roleId ?? 'unknown',
-        roleName: role,
+        roleName: firstExt.roleName ?? firstSheet?.roleName ?? 'Unknown',
         position: firstExt?.position ?? firstSheet?.position ?? 'FRONT_OF_HOUSE',
         payType: firstExt?.payType ?? firstSheet?.payType ?? 'HOURLY',
         payRate: firstExt?.payRate ?? firstSheet?.payRate ?? 0,
@@ -292,7 +291,7 @@ export function reconcilePayroll(
     provenance: { hours: 'HOMEBASE', ccTips: 'CLOVER', serviceCharge: 'CLOVER' },
     timeClockEventsByEmpKey: groupBy(
       externalDailyEvents.filter((e) => !!e.roleName),
-      (e) => `${e.employeeUid}:::${e.displayName}`,
+      (e) => e.employeeUid,
     ),
   };
 
@@ -314,11 +313,15 @@ function zeroDayTotals(): ReconciledDay['totals'] {
   return { ccTips: 0, serviceCharge: 0, cashTips: 0 };
 }
 
-function zeroEmployeeDay(date: string, employeeUid: string): SheetEmployeeDayRow {
+function zeroEmployeeDay(
+  date: string,
+  employeeUid: string,
+  displayName: string,
+): SheetEmployeeDayRow {
   return {
     date,
     employeeUid,
-    displayName: employeeUid,
+    displayName,
     segments: [],
   };
 }

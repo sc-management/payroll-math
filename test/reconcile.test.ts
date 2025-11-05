@@ -322,6 +322,6 @@ describe('reconcilePayroll - meta & sort', () => {
       '2025-11-02::u2',
     ]);
     expect(out.meta?.timeClockEventsByEmpKey).toBeDefined();
-    expect(Object.keys(out.meta.timeClockEventsByEmpKey!)).toContain('u1:::A C');
+    expect(Object.keys(out.meta.timeClockEventsByEmpKey!)).toContain('u1');
   });
 });

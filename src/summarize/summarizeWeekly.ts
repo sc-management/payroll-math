@@ -42,7 +42,7 @@ export function summarizeWeekly(
 
   // 先把“时长线”（用于拆 regular/OT）从 segments 抽出来：按日序遍历
   const employeeDayList = reconciled.employees.filter((e) => inRange(e.date));
-  const empKey = (e: EmployeeDayReconciliation) => `${e.employeeUid}:::${e.displayName}`;
+  const empKey = (e: EmployeeDayReconciliation) => e.employeeUid;
 
   // 2.1 预建空壳
   for (const e of employeeDayList) {

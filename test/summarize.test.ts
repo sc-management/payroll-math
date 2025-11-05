@@ -12,7 +12,7 @@ vi.mock('../src/core/minimumPay', () => ({
 }));
 
 // Helpers
-const empKey = (uid: string, name: string) => `${uid}:::${name}`;
+const empKey = (uid: string) => uid;
 
 // Build a minimal reconciled shape that summarizeWeekly expects
 function makeReconciled({
@@ -74,7 +74,7 @@ function makeReconciled({
 
   // Time clock events for the whole week, used to compute regular vs OT per role
   const timeClockEventsByEmpKey: Record<string, Array<any>> = {
-    [empKey(uid, name)]: [day1, day2].map((d) => ({
+    [empKey(uid)]: [day1, day2].map((d) => ({
       payType: 'HOURLY',
       roleId: roleId,
       roleName: roleName,
@@ -223,7 +223,7 @@ describe('summarizeWeekly', () => {
     }));
 
     const timeClockEventsByEmpKey: Record<string, Array<any>> = {
-      [`${uid}:::${name}`]: days.map((d) => ({
+      [uid]: days.map((d) => ({
         payType: 'HOURLY',
         roleId: roleId,
         roleName: roleName,
