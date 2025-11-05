@@ -1,6 +1,6 @@
 import { SheetAdapter, SheetEmployeeDayRow, SheetDayTotals } from '../sheet-adapter';
 import { PayrollState, Position, StateEmployee } from '../../state/payroll-types';
-import { addDays, formatISO, isValid, parseISO } from 'date-fns';
+import { addDays, isValid, parseISO } from 'date-fns';
 import { MoneyCents } from '../../state/number';
 import { formatInTimeZone } from 'date-fns-tz';
 
