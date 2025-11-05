@@ -153,7 +153,7 @@ export function summarizeWeekly(
       .map((s) => ({
         clockIn: s.clockIn,
         hour: s.hours,
-        roleName: s.roleName!,
+        roleId: s.roleId!,
       })); // 按时间排序，筛选掉salary
 
     const workingHoursByRole = computeWeeklyOvertimeByRole(hourLines, threshold);
@@ -249,10 +249,7 @@ export function summarizeWeekly(
 
   // 3) 输出 WeeklySummary
   const employees = Array.from(mapByEmp.values())
-    .filter(
-      (e) =>
-        e.totals.regularHours + e.totals.overtimeHours > 0 || (e.dailyMismatches?.length ?? 0) > 0,
-    )
+    .filter((e) => e.totals.gross > 0 || (e.dailyMismatches?.length ?? 0) > 0)
     .sort((a, b) => a.employeeUid.localeCompare(b.employeeUid));
   return {
     range,

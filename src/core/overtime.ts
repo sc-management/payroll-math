@@ -27,12 +27,12 @@ export function computeWeeklyOvertimeByRole(
     const toRegular = Math.min(remainingRegular, hours);
     const toOvertime = hours - toRegular;
 
-    if (!result[r.roleName]) {
-      result[r.roleName] = { regularHours: 0, overtimeHours: 0 };
+    if (!result[r.roleId]) {
+      result[r.roleId] = { regularHours: 0, overtimeHours: 0 };
     }
 
-    result[r.roleName].regularHours += toRegular;
-    result[r.roleName].overtimeHours += toOvertime;
+    result[r.roleId].regularHours += toRegular;
+    result[r.roleId].overtimeHours += toOvertime;
 
     accumulated += hours;
   }

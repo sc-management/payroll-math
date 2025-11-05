@@ -18,7 +18,8 @@ const empKey = (uid: string, name: string) => `${uid}:::${name}`;
 function makeReconciled({
   uid = 'u1',
   name = 'Alice',
-  role = 'Server', // use roleId === roleName to avoid mismatches
+  roleId = '1',
+  roleName = 'Server',
   payRate = 1500, // cents/hour
   minimumWage = 1500, // cents/hour
   day1 = {
@@ -60,8 +61,8 @@ function makeReconciled({
     // one hourly segment for the day
     segments: [
       {
-        roleId: role, // keep id === name to align with summarizeWeekly logic
-        roleName: role,
+        roleId: roleId,
+        roleName: roleName,
         payRate,
         payType: 'HOURLY',
         position: 'FRONT_OF_HOUSE',
@@ -75,7 +76,8 @@ function makeReconciled({
   const timeClockEventsByEmpKey: Record<string, Array<any>> = {
     [empKey(uid, name)]: [day1, day2].map((d) => ({
       payType: 'HOURLY',
-      roleName: role,
+      roleId: roleId,
+      roleName: roleName,
       clockIn: `${d.date}T09:00:00Z`,
       hours: d.hours,
     })),
@@ -119,7 +121,7 @@ describe('summarizeWeekly', () => {
     const emp = result.employees[0];
 
     // Hours by role
-    const roleSummary = emp.hoursByRole['Server'];
+    const roleSummary = emp.hoursByRole['1'];
     expect(roleSummary).toBeTruthy();
     expect(roleSummary.payType).toBe('HOURLY');
 
@@ -176,7 +178,8 @@ describe('summarizeWeekly', () => {
     // Build a 5-day week: total 45h (40 regular + 5 OT), with one 12h day triggering spread
     const uid = 'u2';
     const name = 'Bob';
-    const role = 'Server';
+    const roleId = '1';
+    const roleName = 'Server';
     const payRate = 2000; // cents/hour
 
     const days = [
@@ -209,8 +212,8 @@ describe('summarizeWeekly', () => {
       },
       segments: [
         {
-          roleId: role,
-          roleName: role,
+          roleId: roleId,
+          roleName: roleName,
           payRate,
           payType: 'HOURLY',
           position: 'FRONT_OF_HOUSE',
@@ -223,7 +226,8 @@ describe('summarizeWeekly', () => {
     const timeClockEventsByEmpKey: Record<string, Array<any>> = {
       [`${uid}:::${name}`]: days.map((d) => ({
         payType: 'HOURLY',
-        roleName: role,
+        roleId: roleId,
+        roleName: roleName,
         clockIn: `${d.date}T09:00:00Z`,
         hours: d.hours,
       })),
@@ -242,7 +246,7 @@ describe('summarizeWeekly', () => {
     );
 
     const emp = result.employees[0];
-    const roleSummary = emp.hoursByRole[role];
+    const roleSummary = emp.hoursByRole[roleId];
 
     // 40h regular + 5h OT
     expect(roleSummary.regularHours).toBeCloseTo(40, 5);

@@ -27,7 +27,7 @@ export interface EmployeeCalcResult {
 
 export interface ShiftRecord {
   clockIn: string; // ISO 8601
-  roleName: string;
+  roleId: string;
   hour: number; // 实际工时
 }
 
