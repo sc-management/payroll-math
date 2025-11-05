@@ -183,7 +183,7 @@ export function summarizeWeekly(
     const { tips: adjustedCcTips, tipsCash: adjustedCashTips } = applyMinimumPayAdjustment({
       regularHours: emp.totals.regularHours,
       overtimeHours: emp.totals.overtimeHours,
-      payAmount: emp.totals.wages,
+      payAmount: emp.totals.wages + emp.totals.ccTips,
       tips: emp.totals.ccTips,
       tipsCash: emp.totals.cashTips,
       bonus: 0,
