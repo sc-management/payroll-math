@@ -300,6 +300,7 @@ export function reconcilePayroll(
     timezone,
     currency,
     locationId: payrollState.meta.locationId,
+    locationState: payrollState.meta.locationState,
     minimumWage: payrollState.meta.minPayRate,
     configHash: JSON.stringify({ rules }).slice(0, 120),
     provenance: { hours: 'HOMEBASE', ccTips: 'CLOVER', serviceCharge: 'CLOVER' },

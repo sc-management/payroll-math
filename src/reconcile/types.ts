@@ -99,6 +99,7 @@ export type PayrollReconciledSummary = {
     timezone?: string; // 门店时区（用来解释日级归属）
     currency?: string; // e.g. 'USD'
     locationId: string; // 多门店场景常用
+    locationState: string;
     minimumWage: MoneyCents;
 
     configHash?: string; // 用于变更检测

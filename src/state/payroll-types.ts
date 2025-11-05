@@ -64,6 +64,7 @@ export type PayrollState = {
     payrollId: string;
     locationId: string;
     locationName: string;
+    locationState: string; // 州，用来判断是否计算spread of hours
     minPayRate: MoneyCents;
     startDateISO: string;
     endDateISO: string;

@@ -20,7 +20,7 @@ export function summarizeWeekly(
 ): WeeklySummary {
   const threshold = opts?.weekOvertimeThreshold ?? 40;
   const defaultOTM = opts?.defaultOvertimeMultiplier ?? 1.5;
-  const spreadRequired = opts?.spreadRequired ?? false;
+  const spreadRequired = opts?.spreadRequired ?? reconciled.meta.locationState === 'NY';
 
   const inRange = (d: string) => d >= range.startDate && d <= range.endDate;
 

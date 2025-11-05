@@ -80,6 +80,7 @@ export function canonicalizeSnapshot(raw: RawPayrollWithFull): PayrollSnapshot {
       id: String(raw.location.id),
       name: raw.location.name,
       minPayRate: raw.location.min_pay_rate,
+      state: raw.location.state,
     },
     logs: raw.logs.map((l) => ({
       type: l.type,
@@ -204,6 +205,7 @@ export function fromCanonicalToState(snap: PayrollSnapshot, rates: PayRateRecord
     payrollId: snap.id,
     locationId: snap.location.id,
     locationName: snap.location.name,
+    locationState: snap.location.state,
     minPayRate: floatToCents(snap.location.minPayRate),
     startDateISO: snap.startDate,
     endDateISO: snap.endDate,

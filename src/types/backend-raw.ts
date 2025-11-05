@@ -33,6 +33,7 @@ export interface RawPayrollWithFull {
     id: number;
     name: string;
     min_pay_rate: number;
+    state: string;
   };
   logs: Array<{
     type: number;
