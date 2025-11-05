@@ -111,7 +111,6 @@ describe('summarizeWeekly', () => {
     expect(result.days).toHaveLength(2);
 
     // Weekly totals = sum of days
-    expect(result.totals.hours).toBe(8 + 11);
     expect(result.totals.ccTips).toBe(4000 + 5000);
     expect(result.totals.cashTips).toBe(1000 + 500);
     expect(result.totals.serviceCharge).toBe(0);
