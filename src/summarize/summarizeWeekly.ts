@@ -1,4 +1,9 @@
-import { EmployeeDayReconciliation, PayrollReconciledSummary, Variance } from '../reconcile/types';
+import {
+  EmployeeDayReconciliation,
+  PayrollReconciledSummary,
+  Variance,
+  VarianceStatus,
+} from '../reconcile/types';
 import { OVERALL_ROLE_KEY, WeeklyEmployeeSummary, WeeklySummary } from './type';
 import { MoneyCents } from '../state/number';
 import { addVariance } from './helpers';
@@ -6,6 +11,7 @@ import { ShiftRecord } from '../core/types';
 import { computeWeeklyOvertimeByRole } from '../core/overtime';
 import { applyMinimumPayAdjustment } from '../core/minimumPay';
 import { round2 } from '../core/math';
+import { computeScore } from '../reconcile/helpers';
 
 type BuildOpts = {
   weekOvertimeThreshold?: number; // 每周多少小时开始算 OT
@@ -246,15 +252,42 @@ export function summarizeWeekly(
     emp.totals.foh.hours = round2(emp.totals.foh.hours);
   }
 
-  // 3) 输出 WeeklySummary
+  // 2.10) 整理最终员工列表：过滤无数据的 & 排序
   const employees = Array.from(mapByEmp.values())
     .filter((e) => e.totals.gross > 0 || (e.dailyMismatches?.length ?? 0) > 0)
     .sort((a, b) => a.employeeUid.localeCompare(b.employeeUid));
+
+  // 3) 放入Report
+  const issueCountByLevel = { INFO: 0, WARNING: 0, ERROR: 0 };
+
+  for (const issue of reconciled.report?.issues ?? []) {
+    issueCountByLevel[issue.level]++;
+  }
+
+  const blocking = issueCountByLevel.ERROR > 0;
+
+  // 计算健康评分（可选）
+  const totalIssues = issueCountByLevel.INFO + issueCountByLevel.WARNING + issueCountByLevel.ERROR;
+  let score = 100;
+  if (totalIssues > 0) {
+    // 按等级加权扣分：WARNING −2，每个 ERROR −10，最低 0
+    score = Math.max(0, 100 - issueCountByLevel.WARNING * 2 - issueCountByLevel.ERROR * 10);
+  }
+
+  const report: WeeklySummary['report'] = {
+    score,
+    issues: reconciled.report?.issues ?? [],
+    issueCountByLevel,
+    blocking,
+  };
+
+  // 4) 返回结果
   return {
     range,
     employees,
     days,
     totals: weeklyTotals,
     meta: reconciled.meta,
+    report,
   };
 }
