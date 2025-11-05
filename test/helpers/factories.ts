@@ -42,6 +42,7 @@ export function makeState(partial?: Partial<PayrollState>): PayrollState {
       payrollId: partial?.meta?.payrollId ?? 'pid',
       locationId: partial?.meta?.locationId ?? '1',
       locationName: partial?.meta?.locationName ?? 'Newton',
+      locationState: partial?.meta?.locationState ?? 'MA',
       minPayRate: partial?.meta?.minPayRate ?? 1500,
       startDateISO: partial?.meta?.startDateISO ?? '2025-09-22T00:00:00Z',
       endDateISO: partial?.meta?.endDateISO ?? '2025-09-28T23:59:59Z',

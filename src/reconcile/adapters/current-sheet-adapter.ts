@@ -8,7 +8,7 @@ export type PeriodToDateResolver = (periodId: string, meta: PayrollState['meta']
 
 /**
  * 默认解析器：
- * - 认为 periodId 是 "1".."14" 的顺序自然日
+ * - periodId 是 "1".."14" 的顺序,1 表示 Day-1 午餐，2 表示 Day-1 晚餐，依此类推
  * - 以 meta.startDateISO 为 Day-1（含）起点
  */
 export const defaultPeriodToDate: PeriodToDateResolver = (periodId, meta) => {
@@ -19,7 +19,7 @@ export const defaultPeriodToDate: PeriodToDateResolver = (periodId, meta) => {
   if (!Number.isFinite(n) || n < 1) {
     throw new Error(`[reconcile] unexpected periodId="${periodId}" for default resolver`);
   }
-  const d = addDays(base, n - 1);
+  const d = addDays(base, Math.floor((n - 1) / 2)); // 每两 periodId 增加一天
   // 输出“YYYY-MM-DD”（不带时间）
   return formatISO(d, { representation: 'date' });
 };
