@@ -13,6 +13,10 @@ import { computeScore, groupBy, sumBy, varianceOfCents, varianceOfNumber } from 
 import { clamp2 } from '../state/number';
 import { OVERALL_ROLE_KEY } from '../summarize/type';
 
+function formatCents(value: number) {
+  return `$${(value / 100).toFixed(2)}`;
+}
+
 type Opts = {
   adapter?: SheetAdapter;
   includeRoleIds?: string[];
@@ -72,7 +76,7 @@ export function reconcilePayroll(
       issues.push({
         level: 'WARNING',
         code: 'SHEET_MISSING_DATE',
-        message: `Date ${date} exists externally but not in sheet`,
+        message: `External records exist for ${date}, but this date is missing in the sheet.`,
         date,
       });
     } else {
@@ -83,7 +87,7 @@ export function reconcilePayroll(
         issues.push({
           level: 'INFO',
           code: 'EXTERNAL_MISSING_DATE',
-          message: `No external records for date ${date}`,
+          message: `No matching external data found for ${date}.`,
           date,
         });
       }
@@ -100,7 +104,7 @@ export function reconcilePayroll(
       issues.push({
         level: vCcTips.status,
         code: 'TIPS_MISMATCH',
-        message: `Tips mismatch on ${date}: sheet=${sheet.ccTips}c, external=${extTips}c`,
+        message: `Credit card tips differ on ${date}: Sheet = ${formatCents(sheet.ccTips)}, External = ${formatCents(extTips)}.`,
         date,
         meta: { sheetCcTips: sheet.ccTips, externalCcTips: extTips },
       });
@@ -119,7 +123,7 @@ export function reconcilePayroll(
       issues.push({
         level: vSvc.status,
         code: 'SERVICE_CHARGE_MISMATCH',
-        message: `Service charge mismatch on ${date}: sheet=${sheet.serviceCharge}c, external=${extSvc}c`,
+        message: `Service charge totals don't match on ${date}: Sheet = ${formatCents(sheet.serviceCharge)}, External = ${formatCents(extSvc)}.`,
         date,
         meta: { sheetServiceCharge: sheet.serviceCharge, externalServiceCharge: extSvc },
       });
@@ -131,7 +135,7 @@ export function reconcilePayroll(
         issues.push({
           level: 'WARNING',
           code: 'CLOVER_NEGATIVE_NET',
-          message: `Negative ccTips on ${date}`,
+          message: `Clover reported negative credit card tips on ${date}.`,
           date,
           meta: { ccTips: r.ccTips },
         });
@@ -167,16 +171,16 @@ export function reconcilePayroll(
           let message = '';
           if (anomaly.type === 'MISSING_CLOCKOUT') {
             code = 'EXTERNAL_MISSING_CLOCKOUT';
-            message = `Missing clock-out for ${d.displayName} on ${d.date}`;
+            message = `${d.displayName} did not clock out on ${d.date}.`;
           } else if (anomaly.type === 'MISSING_CLOCKIN') {
             code = 'EXTERNAL_MISSING_CLOCKIN';
-            message = `Missing clock-in for ${d.displayName} on ${d.date}`;
+            message = `${d.displayName} did not clock in on ${d.date}.`;
           } else if (anomaly.type === 'MISSING_ROLE') {
             code = 'EXTERNAL_MISSING_ROLE';
-            message = `Missing role for ${d.displayName} on ${d.date}`;
+            message = `Role information is missing for ${d.displayName} on ${d.date}.`;
           } else {
             code = 'EXTERNAL_UNKNOWN_ANOMALY';
-            message = `Unknown anomaly for ${d.displayName} on ${d.date}`;
+            message = `An unknown anomaly was detected for ${d.displayName} on ${d.date}.`;
           }
 
           issues.push({
@@ -223,7 +227,7 @@ export function reconcilePayroll(
         issues.push({
           level: vRoleHours.status,
           code: 'HOURS_MISMATCH_BY_ROLE',
-          message: `Hours mismatch for ${sheetRow.displayName} on ${date} for role ${role}: sheet=${sheetHoursForRole}, external=${extHoursForRole}`,
+          message: `Working hours differ for ${sheetRow.displayName} on ${date} (${role}): Sheet = ${sheetHoursForRole}h, External = ${extHoursForRole}h.`,
           date,
           employeeUid,
           displayName: sheetRow.displayName,
@@ -304,7 +308,7 @@ export function reconcilePayroll(
     issues.push({
       level: metaReconciliation.status,
       code: 'META_TIPS_MISMATCH',
-      message: `Meta tips mismatch: sheet=${sheetTotalCcTips}c, employees=${employeeTotalCcTips}c`,
+      message: `Overall tip totals differ between sheet and employee summaries: Sheet = ${formatCents(sheetTotalCcTips)}, Employees = ${formatCents(employeeTotalCcTips)}.`,
       meta: {
         sheetTotalCcTips,
         employeeTotalCcTips,
