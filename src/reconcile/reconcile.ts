@@ -297,16 +297,17 @@ export function reconcilePayroll(
 
   // ---------- 5) 汇总 & 报告 ----------
   const sheetTotalCcTips = days.reduce((acc, d) => acc + d.totals.ccTips, 0);
+  const sheetTotalServiceCharge = days.reduce((acc, d) => acc + d.totals.serviceCharge, 0);
   const employeeTotalCcTips = employees.reduce((acc, e) => acc + e.totals.ccTips, 0);
   const metaReconciliation = varianceOfCents(
-    sheetTotalCcTips,
+    sheetTotalCcTips + sheetTotalServiceCharge,
     employeeTotalCcTips,
     { absTolCents: rules.tipsToleranceAbsCents, pctTol: rules.tipsTolerancePct },
     'SHEET',
   );
   if (metaReconciliation.status !== 'OK') {
     issues.push({
-      level: metaReconciliation.status,
+      level: 'WARNING',
       code: 'META_TIPS_MISMATCH',
       message: `Overall tip totals differ between sheet and employee summaries: Sheet = ${formatCents(sheetTotalCcTips)}, Employees = ${formatCents(employeeTotalCcTips)}.`,
       meta: {
