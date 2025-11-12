@@ -67,31 +67,9 @@ export function reconcilePayroll(
 
   for (const date of allDates) {
     const sheet = sheetDayTotals.get(date) ?? zeroDayTotals();
-    const hasSheet = sheetDayTotals.has(date);
 
     const extTips = sumBy(receiptsByDate[date] ?? [], (r) => r.ccTips);
     const extSvc = sumBy(receiptsByDate[date] ?? [], (r) => r.serviceCharge);
-
-    if (!hasSheet) {
-      issues.push({
-        level: 'WARNING',
-        code: 'SHEET_MISSING_DATE',
-        message: `External records exist for ${date}, but this date is missing in the sheet.`,
-        date,
-      });
-    } else {
-      // 如果 sheet 有、外部完全没有记录，也记一条
-      const noExternal =
-        (hoursByDate[date]?.length ?? 0) === 0 && (receiptsByDate[date]?.length ?? 0) === 0;
-      if (noExternal) {
-        issues.push({
-          level: 'INFO',
-          code: 'EXTERNAL_MISSING_DATE',
-          message: `No matching external data found for ${date}.`,
-          date,
-        });
-      }
-    }
 
     // Variances
     const vCcTips = varianceOfCents(

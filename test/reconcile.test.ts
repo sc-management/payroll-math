@@ -4,7 +4,7 @@ import { ReconciledDay } from '../src';
 import { SheetAdapter, SheetEmployeeDayRow } from '../src';
 import { ReconcileInput } from '../src';
 import { reconcilePayroll } from '../src';
-import { OVERALL_ROLE_KEY } from '../src/summarize/type';
+import { OVERALL_ROLE_KEY } from '../src';
 
 // =======================================================
 // Helper：构建最小 SheetAdapter
@@ -28,8 +28,8 @@ describe('reconcilePayroll - day-level', () => {
   it('detects missing dates and negative ccTips', () => {
     const adapter = makeAdapter({
       dayTotals: {
-        '2025-11-01': { hours: 10, ccTips: 10000, serviceCharge: 3000, cashTips: 2000 },
-        '2025-11-02': { hours: 8, ccTips: 8000, serviceCharge: 2000, cashTips: 1000 },
+        '2025-11-01': { ccTips: 10000, serviceCharge: 3000, cashTips: 2000 },
+        '2025-11-02': { ccTips: 8000, serviceCharge: 2000, cashTips: 1000 },
       },
       empRows: [],
     });
@@ -77,8 +77,6 @@ describe('reconcilePayroll - day-level', () => {
     const out = reconcilePayroll(input, {}, { adapter });
     const codes = out.report.issues.map((i) => i.code);
 
-    expect(codes).toContain('SHEET_MISSING_DATE'); // 11-03
-    expect(codes).toContain('EXTERNAL_MISSING_DATE'); // 11-02
     expect(codes).toContain('CLOVER_NEGATIVE_NET'); // 负ccTips
   });
 });
@@ -90,7 +88,7 @@ describe('reconcilePayroll - employee x day', () => {
   it('aggregates valid external records and matches roles', () => {
     const adapter = makeAdapter({
       dayTotals: {
-        '2025-11-01': { hours: 0, ccTips: 0, serviceCharge: 0, cashTips: 0 },
+        '2025-11-01': { ccTips: 0, serviceCharge: 0, cashTips: 0 },
       },
       empRows: [
         {
@@ -195,7 +193,7 @@ describe('reconcilePayroll - employee x day', () => {
 describe('reconcilePayroll - includeRoleNames', () => {
   it('skips roles not in includeRoleNames when checking', () => {
     const adapter = makeAdapter({
-      dayTotals: { '2025-11-01': { hours: 0, ccTips: 0, serviceCharge: 0, cashTips: 0 } },
+      dayTotals: { '2025-11-01': { ccTips: 0, serviceCharge: 0, cashTips: 0 } },
       empRows: [
         {
           date: '2025-11-01',
@@ -276,8 +274,8 @@ describe('reconcilePayroll - meta & sort', () => {
   it('sorts by date & uid, meta contains timeClockEventsByEmployee', () => {
     const adapter = makeAdapter({
       dayTotals: {
-        '2025-11-02': { hours: 0, ccTips: 0, serviceCharge: 0, cashTips: 0 },
-        '2025-11-01': { hours: 0, ccTips: 0, serviceCharge: 0, cashTips: 0 },
+        '2025-11-02': { ccTips: 0, serviceCharge: 0, cashTips: 0 },
+        '2025-11-01': { ccTips: 0, serviceCharge: 0, cashTips: 0 },
       },
       empRows: [],
     });
