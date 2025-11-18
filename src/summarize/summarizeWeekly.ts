@@ -180,6 +180,15 @@ export function summarizeWeekly(
       emp.totals.wages += roleSummary.wages;
     }
 
+    if (emp.totals.regularHours + emp.totals.overtimeHours > 50) {
+      reconciled.report?.issues.push({
+        level: 'INFO',
+        code: 'EMP_OVER_50_HOURS',
+        message: `Employee ${emp.displayName} worked over 50 hours (${round2(emp.totals.regularHours + emp.totals.overtimeHours)} hours) in the week of ${range.startDate} to ${range.endDate}.`,
+        employeeUid: emp.employeeUid,
+      });
+    }
+
     const { tips: adjustedCcTips, tipsCash: adjustedCashTips } = applyMinimumPayAdjustment({
       regularHours: emp.totals.regularHours,
       overtimeHours: emp.totals.overtimeHours,
