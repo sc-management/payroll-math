@@ -164,7 +164,7 @@ export function reconcilePayroll(
           issues.push({
             level: 'WARNING',
             code: code,
-            message: message,
+            message: anomaly.note || message,
             employeeUid,
             displayName: d.displayName,
             date: d.date,
