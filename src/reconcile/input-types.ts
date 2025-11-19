@@ -9,6 +9,7 @@ export type ExternalShiftAnomalyType = 'MISSING_CLOCKOUT' | 'MISSING_CLOCKIN' | 
 export type ExternalShiftAnomaly = {
   clockId?: string; // providerClockId（若有的话）
   type: ExternalShiftAnomalyType;
+  level?: 'INFO' | 'WARNING' | 'ERROR';
   in?: string; // ISO(UTC) 原始 clockIn
   out?: string; // ISO(UTC) 原始 clockOut（缺失时为空）
   note?: string; // 自由文本说明

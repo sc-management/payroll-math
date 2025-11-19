@@ -162,7 +162,7 @@ export function reconcilePayroll(
           }
 
           issues.push({
-            level: 'WARNING',
+            level: anomaly.level || 'WARNING',
             code: code,
             message: anomaly.note || message,
             employeeUid,
