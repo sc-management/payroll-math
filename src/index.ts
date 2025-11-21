@@ -5,7 +5,7 @@ export { sumPayrollTotals } from './core/calcPayroll';
 export { computeWeeklyOvertimeByRole } from './core/overtime';
 export { applyMinimumPayAdjustment } from './core/minimumPay';
 
-export { applyChanges } from './orchestrator/applyChanges';
+export { applyChanges } from './orchestrator/apply-changes';
 
 export * from './state/payroll-types';
 export { fromBackendSnapshotToState } from './state/from-backend';
