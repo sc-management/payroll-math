@@ -97,15 +97,16 @@ export function reconcilePayroll(
       },
       'EXTERNAL',
     );
-    if (vSvc.status !== 'OK') {
-      issues.push({
-        level: vSvc.status,
-        code: 'SERVICE_CHARGE_MISMATCH',
-        message: `Service charge totals don't match on ${date}: Sheet = ${formatCents(sheet.serviceCharge)}, External = ${formatCents(extSvc)}.`,
-        date,
-        meta: { sheetServiceCharge: sheet.serviceCharge, externalServiceCharge: extSvc },
-      });
-    }
+    // Do not send service charge issues for now
+    // if (vSvc.status !== 'OK') {
+    //   issues.push({
+    //     level: vSvc.status,
+    //     code: 'SERVICE_CHARGE_MISMATCH',
+    //     message: `Service charge totals don't match on ${date}: Sheet = ${formatCents(sheet.serviceCharge)}, External = ${formatCents(extSvc)}.`,
+    //     date,
+    //     meta: { sheetServiceCharge: sheet.serviceCharge, externalServiceCharge: extSvc },
+    //   });
+    // }
 
     // Clover 负值告警
     for (const r of receiptsByDate[date] ?? []) {
