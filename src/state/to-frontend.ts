@@ -81,14 +81,14 @@ export function fromStateToModel(s: PayrollState): PayrollModel {
         Object.entries(emp.byPeriod).map(([pid, cell]) => [
           pid,
           {
-            hour: cell.hour || 0,
-            cc: cell.cc || 0,
-            percent: cell.percent || 0,
-            cash: cell.cash || 0,
-            total:
-              (cell.cc || 0) +
-              (cell.cash || 0) +
-              ((emp.payType === 'SALARY' ? 0 : (cell.hour || 0) * emp.payRate) || 0),
+            hour: cell.hour,
+            cc: cell.cc,
+            percent: cell.percent,
+            cash: cell.cash,
+            total: Math.max(
+              cell.cc + cell.cash + (emp.payType === 'SALARY' ? 0 : cell.hour * emp.payRate),
+              cell.hour * s.meta.minPayRate,
+            ),
           },
         ]),
       ),
