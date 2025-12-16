@@ -29,7 +29,7 @@ export function resolveDependencies(state: PayrollState, changes: PayrollChange[
       periods.add(pid);
 
       // 仅当字段是会影响分配的池子字段时，扩散到 Server/Busser
-      const poolFields = new Set(['ccTips', 'cashTips', 'serviceCharge']);
+      const poolFields = new Set(['ccTips', 'cashTips', 'serviceCharge', 'busserPercent']);
       const fieldName = c.field;
       if (fieldName && poolFields.has(fieldName)) {
         for (const e of state.employees) {
