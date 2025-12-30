@@ -75,8 +75,9 @@ function normalizeChanges(changes: PayrollChange[]): PayrollChange[] {
 function recomputeMetaTotals(state: PayrollState) {
   const totalCash = sumCents(Object.values(state.periods).map((p) => p.cashTips));
   const totalCc = sumCents(Object.values(state.periods).map((p) => p.ccTips));
+  const totalService = sumCents(Object.values(state.periods).map((p) => p.serviceCharge));
   state.meta.totalCashTips = totalCash;
-  state.meta.totalTips = totalCash + totalCc;
+  state.meta.totalTips = totalCash + totalCc + totalService;
 }
 
 // ---- Shake Tree: prune cells that are meaningless after recompute ----

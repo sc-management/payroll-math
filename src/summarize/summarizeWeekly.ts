@@ -89,21 +89,27 @@ export function summarizeWeekly(
 
     // 预建 role slots（用于后续小时数更新）
     for (const s of e.segments || []) {
-      if (!emp.hoursByRole[s.roleId]) {
+      const existing = emp.hoursByRole[s.roleId];
+
+      if (!existing) {
         emp.hoursByRole[s.roleId] = {
           roleId: s.roleId,
           roleName: s.roleName,
           payRate: s.payRate,
           payType: s.payType,
           position: s.position,
-          regularHours: 0,
+          // ✅ salary 的小时数需要在“首次创建 slot”时就累加，否则会丢掉第一天
+          regularHours: s.payType === 'SALARY' ? s.hours : 0,
           overtimeHours: 0,
           overtimeMultiplier: defaultOTM,
           wages: 0 as MoneyCents,
         };
-      } else if (emp.hoursByRole[s.roleId] && s.payType === 'SALARY') {
-        // 已存在且为 salary，则直接更新hour
-        emp.hoursByRole[s.roleId].regularHours += s.hours;
+        continue;
+      }
+
+      // 已存在且为 salary，则直接更新 hour（salary 不参与 2.4 的 timeclock 拆分）
+      if (s.payType === 'SALARY') {
+        existing.regularHours += s.hours;
       }
     }
   }

@@ -288,7 +288,7 @@ export function reconcilePayroll(
     issues.push({
       level: 'WARNING',
       code: 'META_TIPS_MISMATCH',
-      message: `Overall tip totals differ between sheet and employee summaries: Sheet = ${formatCents(sheetTotalCcTips)}, Employees = ${formatCents(employeeTotalCcTips)}.`,
+      message: `Overall tip totals differ between sheet and employee summaries: Sheet = ${formatCents(sheetTotalCcTips + sheetTotalServiceCharge)}, Employees = ${formatCents(employeeTotalCcTips)}.`,
       meta: {
         sheetTotalCcTips,
         employeeTotalCcTips,
