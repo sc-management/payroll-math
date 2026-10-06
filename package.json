@@ -1,6 +1,6 @@
 {
   "name": "@shaking-crab/payroll-math",
-  "version": "0.5.24",
+  "version": "0.5.25",
   "description": "Pure TypeScript payroll calculators for FE & BE",
   "license": "MIT",
   "type": "module",
@@ -49,5 +49,9 @@
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "immer": "^10.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sc-management/payroll-math.git"
   }
 }
