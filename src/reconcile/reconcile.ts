@@ -203,10 +203,17 @@ export function reconcilePayroll(
         'EXTERNAL',
       );
       if (vRoleHours.status !== 'OK') {
+        const roleName = [
+          ...(extEventsByRole[role] ?? []),
+          ...(sheetEmpByRole[role] ?? []),
+        ]
+          .map((entry) => entry.roleName?.trim())
+          .find((name) => !!name);
+        const roleLabel = roleName || `Role #${role}`;
         issues.push({
           level: vRoleHours.status,
           code: 'HOURS_MISMATCH_BY_ROLE',
-          message: `Working hours differ for ${sheetRow.displayName} on ${date} (${role}): Sheet = ${sheetHoursForRole}h, External = ${extHoursForRole}h.`,
+          message: `Working hours differ for ${sheetRow.displayName} on ${date} (${roleLabel}): Sheet = ${sheetHoursForRole}h, External = ${extHoursForRole}h.`,
           date,
           employeeUid,
           displayName: sheetRow.displayName,
