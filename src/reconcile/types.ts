@@ -37,14 +37,16 @@ export type EmployeeDayReconciliation = {
   reconciliation: Record<
     string,
     {
+      /** Display metadata, including payroll-only roles; never creates a payable segment. */
+      roleName?: string;
       hours: Variance<number>;
     }
-  >; // keyed by roleName (总览每个 role 的工时差异）
+  >; // keyed by roleId, plus OVERALL_ROLE_KEY (总览每个 role 的工时差异）
 
-  /** 仅展示用途（可省略） */
+  /** 有效 external/Homebase 角色，用于周级工资计算（可省略）。 */
   segments?: SheetRoleSlice[];
   totals: {
-    hours: number; // sheet 当日总工时（reg+OT）
+    hours: number; // 有效 external/Homebase 当日总工时（reg+OT）
     ccTips: MoneyCents;
     cashTips: MoneyCents;
   };

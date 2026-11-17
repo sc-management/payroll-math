@@ -1,6 +1,6 @@
 {
   "name": "@shaking-crab/payroll-math",
-  "version": "0.5.25",
+  "version": "0.5.26",
   "description": "Pure TypeScript payroll calculators for FE & BE",
   "license": "MIT",
   "type": "module",
@@ -20,6 +20,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsup --config tsup.config.ts",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:ui:cov": "vitest --ui --coverage",

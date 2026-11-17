@@ -79,6 +79,7 @@ function makeRaw(): RawPayrollWithFull {
     location: {
       id: 1,
       name: 'Newton',
+      state: 'MA',
       min_pay_rate: 15.25,
     },
     logs: [
@@ -231,6 +232,7 @@ describe('canonicalizeSnapshot', () => {
       location: {
         id: String(raw.location.id),
         name: raw.location.name,
+        state: raw.location.state,
         minPayRate: raw.location.min_pay_rate,
       },
       logs: [

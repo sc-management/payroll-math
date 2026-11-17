@@ -128,7 +128,7 @@ export function summarizeWeekly(
         emp.dailyMismatches.push({
           date: e.date,
           roleId,
-          roleName: emp.hoursByRole[roleId]?.roleName || 'Unknown',
+          roleName: rec.roleName || emp.hoursByRole[roleId]?.roleName || 'Unknown',
           type: 'HOURS',
           field: 'hours',
           variance: v,

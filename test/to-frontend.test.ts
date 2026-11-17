@@ -21,6 +21,7 @@ describe('fromStateToModel (Vitest)', () => {
         payrollId: '123',
         locationId: '1',
         locationName: 'Newton',
+        locationState: 'MA',
         minPayRate: 15,
         startDateISO: '2025-09-21',
         endDateISO: '2025-09-27',

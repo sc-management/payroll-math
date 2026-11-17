@@ -6,7 +6,6 @@ import {
   ReconciledDay,
   ReconciliationIssue,
   SheetRoleSlice,
-  Variance,
 } from './types';
 import { defaultSheetAdapter, SheetAdapter, SheetEmployeeDayRow } from './sheet-adapter';
 import { computeScore, groupBy, sumBy, varianceOfCents, varianceOfNumber } from './helpers';
@@ -186,14 +185,13 @@ export function reconcilePayroll(
       ...Object.keys(extEventsByRole),
     ]);
 
-    const reconciliationByRole: Record<
-      string,
-      {
-        hours: Variance<number>;
-      }
-    > = {};
+    const reconciliationByRole: EmployeeDayReconciliation['reconciliation'] = {};
     for (const role of allRoles) {
       if (!includeRoleIds.includes(role)) continue; // 仅限 FOH 角色对账
+      const roleName = [...(extEventsByRole[role] ?? []), ...(sheetEmpByRole[role] ?? [])]
+        .map((entry) => entry.roleName?.trim())
+        .find((name) => !!name);
+      const roleLabel = roleName || `Role #${role}`;
       const sheetHoursForRole = sumBy(sheetEmpByRole[role] ?? [], (s) => s.hours);
       const extHoursForRole = sumBy(extEventsByRole[role] ?? [], (h) => h.hours);
       const vRoleHours = varianceOfNumber(
@@ -203,13 +201,6 @@ export function reconcilePayroll(
         'EXTERNAL',
       );
       if (vRoleHours.status !== 'OK') {
-        const roleName = [
-          ...(extEventsByRole[role] ?? []),
-          ...(sheetEmpByRole[role] ?? []),
-        ]
-          .map((entry) => entry.roleName?.trim())
-          .find((name) => !!name);
-        const roleLabel = roleName || `Role #${role}`;
         issues.push({
           level: vRoleHours.status,
           code: 'HOURS_MISMATCH_BY_ROLE',
@@ -225,6 +216,7 @@ export function reconcilePayroll(
         });
       }
       reconciliationByRole[role] = {
+        roleName: roleLabel,
         hours: vRoleHours,
       };
     }
